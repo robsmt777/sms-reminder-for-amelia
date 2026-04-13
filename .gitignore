@@ -1,0 +1,39 @@
+# Secrets & env
+.env
+.env.*
+*.key
+*.pem
+wp-config.php
+credentials*.json
+
+# Build artifacts
+*.zip
+*.tar.gz
+dist/
+build/
+
+# Dependencies
+node_modules/
+vendor/
+composer.lock
+package-lock.json
+yarn.lock
+
+# IDE / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs & debug
+*.log
+debug.log
+error_log
+
+# Database dumps (ne JAMAIS commit)
+*.sql
+*.sql.gz
+*.sql.zip
