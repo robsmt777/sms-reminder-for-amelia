@@ -9,11 +9,13 @@ Développé par **[Capitaine Site](https://capitainesite.com/)** — Agence expe
 ## ✨ Fonctionnalités
 
 - 📱 Envoi automatique de SMS de rappel via **SMS Partner** (autres passerelles à venir)
-- 🔄 **Détection des reports** : si un RDV est déplacé, un nouveau SMS est envoyé
+- ⏰ **2 rappels par RDV** (SMS 1 obligatoire + SMS 2 optionnel) — timings au choix : 10 min, 30 min, 1h, 2h, 4h, 8h, 12h, 24h ou 48h avant
+- 💬 **Message indépendant par slot** — SMS 1 détaillé la veille, SMS 2 court 1h avant, par exemple
+- 🔄 **Détection des reports** : si un RDV est déplacé, les slots actifs renvoient un SMS automatiquement
 - 🕒 Lecture directe des tables Amelia, sans dépendance à l'API interne
-- 🎨 Template de message **100% personnalisable** avec variables (`%customer_full_name%`, `%appointment_start_time%`, etc.)
-- ⚙️ **Interface admin complète** : clé API, expéditeur, template, fenêtre de rappel, fréquence du cron
-- 📊 **Page de logs** avec statuts (envoyé, délivré, échec) et bouton "Exécuter maintenant"
+- 🎨 Templates **100% personnalisables** avec variables (`%customer_full_name%`, `%appointment_start_time%`, etc.)
+- ⚙️ **Interface admin complète** : clé API, expéditeur, slots de rappel, fréquence du cron
+- 📊 **Page de logs** avec statuts (envoyé, délivré, échec), colonne slot, bouton "Exécuter maintenant"
 - 📥 **Webhook DLR** pour remonter les accusés de réception SMS Partner
 - 🔐 Support des `define()` dans `wp-config.php` pour déploiements multi-serveurs
 - 🧹 Purge hebdomadaire automatique des anciens logs
@@ -47,8 +49,8 @@ Développé par **[Capitaine Site](https://capitainesite.com/)** — Agence expe
 | Clé API | Token SMS Partner |
 | Expéditeur | Nom affiché sur le SMS (3-11 caractères alphanumériques) |
 | Mode sandbox | Activer pour tester sans consommer de crédits |
-| Template du message | Message SMS avec variables dynamiques |
-| Fenêtre de rappel | Heures min/max avant le RDV (par défaut 23h–25h) |
+| SMS 1 (obligatoire) | Timing (10 min à 48h avant le RDV) + template personnalisé |
+| SMS 2 (optionnel)   | Second rappel indépendant, avec son propre timing et template |
 | Fréquence du cron | De 1 min à 1h |
 | Rétention des logs | Nombre de jours avant purge (par défaut 30) |
 

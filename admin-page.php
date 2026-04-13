@@ -212,6 +212,7 @@ $settings_url   = admin_url( 'options-general.php?page=srfa-settings' );
                 <thead>
                     <tr>
                         <th style="width:140px;">Date RDV</th>
+                        <th style="width:60px;text-align:center;" title="Slot de rappel (SMS 1 = principal, SMS 2 = complémentaire)">Slot</th>
                         <th style="width:160px;">Client</th>
                         <th style="width:120px;">Téléphone</th>
                         <th>Service</th>
@@ -229,8 +230,18 @@ $settings_url   = admin_url( 'options-general.php?page=srfa-settings' );
                         $sent_dt  = $log->sent_at    ? date_i18n( 'd/m/Y H:i', strtotime( $log->sent_at ) )     : '—';
                         $deliv_dt = $log->delivery_at ? date_i18n( 'd/m/Y H:i', strtotime( $log->delivery_at ) ) : '—';
                     ?>
+                    <?php
+                        $slot_num = isset( $log->reminder_slot ) ? (int) $log->reminder_slot : 1;
+                        $slot_bg  = $slot_num === 1 ? '#dbeafe' : '#fae8ff';
+                        $slot_fg  = $slot_num === 1 ? '#1e40af' : '#86198f';
+                    ?>
                     <tr>
                         <td><strong><?php echo esc_html( $appt_dt ); ?></strong></td>
+                        <td style="text-align:center;">
+                            <span style="display:inline-block;min-width:28px;padding:2px 8px;background:<?php echo esc_attr( $slot_bg ); ?>;color:<?php echo esc_attr( $slot_fg ); ?>;border-radius:10px;font-size:11px;font-weight:700;">
+                                <?php echo (int) $slot_num; ?>
+                            </span>
+                        </td>
                         <td><?php echo esc_html( $log->customer_name ); ?></td>
                         <td style="font-family:monospace;font-size:12px;"><?php echo esc_html( $log->customer_phone ); ?></td>
                         <td><?php echo esc_html( $log->service_name ); ?></td>

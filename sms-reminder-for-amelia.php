@@ -3,7 +3,7 @@
  * Plugin Name: SMS Reminder for Amelia
  * Plugin URI:  https://capitainesite.com/
  * Description: Envoi automatique de SMS de rappel de rendez-vous pour Amelia Booking, via SMS Partner, en lisant directement les tables Amelia. D'autres passerelles SMS arriveront dans les prochaines versions.
- * Version:     1.0.0
+ * Version:     1.1.0
  * Author:      Capitaine Site — Agence experte WordPress
  * Author URI:  https://capitainesite.com/
  * License:     GPL-2.0-or-later
@@ -30,7 +30,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // ─── Constantes internes (non surchargeables) ────────────────────────────────
 
-define( 'SRFA_VERSION',    '1.0.0' );
+define( 'SRFA_VERSION',    '1.1.0' );
 define( 'SRFA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SRFA_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'SRFA_API_URL',    'https://api.smspartner.fr/v1/send' );
@@ -43,13 +43,8 @@ define( 'SRFA_OPTION_KEY', 'srfa_settings' );
 /**
  * Retourne la valeur effective d'un réglage.
  * Priorité : define() dans wp-config.php > option en base > valeur par défaut.
- *
- * @param  string $key     'api_key' | 'sandbox' | 'sender' | 'message_template' | 'purge_days' | 'reminder_hours_min' | 'reminder_hours_max'
- * @param  mixed  $default Valeur si ni define ni option.
- * @return mixed
  */
 function srfa_get_option( $key, $default = null ) {
-    // Mapping clé → constante PHP
     $const_map = [
         'api_key' => 'SRFA_API_KEY',
         'sandbox' => 'SRFA_SANDBOX',
@@ -58,7 +53,6 @@ function srfa_get_option( $key, $default = null ) {
 
     if ( isset( $const_map[ $key ] ) && defined( $const_map[ $key ] ) ) {
         $val = constant( $const_map[ $key ] );
-        // On considère que le define est actif seulement s'il n'est pas la valeur par défaut vide
         if ( $key !== 'api_key' || $val !== '' ) {
             return $val;
         }
@@ -70,16 +64,12 @@ function srfa_get_option( $key, $default = null ) {
         return $options[ $key ];
     }
 
-    // Valeurs par défaut
     $defaults = [
-        'api_key'             => '',
-        'sandbox'             => true,
-        'sender'              => 'Reminder',
-        'message_template'    => "%location_name% : Bonjour %customer_full_name%, RDV demain à %appointment_start_time% avec %employee_first_name% pour %service_name%. Merci de prévenir si annulation.",
-        'purge_days'          => 30,
-        'reminder_hours_min'  => 23,
-        'reminder_hours_max'  => 25,
-        'cron_frequency'      => 15,
+        'api_key'        => '',
+        'sandbox'        => true,
+        'sender'         => 'Reminder',
+        'purge_days'     => 30,
+        'cron_frequency' => 15,
     ];
 
     if ( $default !== null ) {
@@ -87,6 +77,81 @@ function srfa_get_option( $key, $default = null ) {
     }
 
     return isset( $defaults[ $key ] ) ? $defaults[ $key ] : null;
+}
+
+
+// ─── Slots de rappel (SMS 1 + SMS 2 optionnel) ───────────────────────────────
+
+/**
+ * Liste des offsets prédéfinis (clé = minutes, valeur = libellé humain).
+ */
+function srfa_reminder_offsets() {
+    return [
+        10   => '10 minutes avant',
+        30   => '30 minutes avant',
+        60   => '1 heure avant',
+        120  => '2 heures avant',
+        240  => '4 heures avant',
+        480  => '8 heures avant',
+        720  => '12 heures avant',
+        1440 => '24 heures avant (la veille)',
+        2880 => '48 heures avant (2 jours)',
+    ];
+}
+
+function srfa_default_template_long() {
+    return "%location_name% : Bonjour %customer_full_name%, RDV demain à %appointment_start_time% avec %employee_first_name% pour %service_name%. Merci de prévenir si annulation.";
+}
+
+function srfa_default_template_short() {
+    return "%location_name% : Rappel, votre RDV est à %appointment_start_time% avec %employee_first_name%. À tout à l'heure !";
+}
+
+/**
+ * Retourne la configuration complète des 2 slots, avec valeurs par défaut appliquées.
+ * Chaque slot : [ 'enabled' => bool, 'offset_minutes' => int, 'template' => string ]
+ */
+function srfa_get_slots() {
+    $options = get_option( SRFA_OPTION_KEY, [] );
+    $stored  = isset( $options['slots'] ) && is_array( $options['slots'] ) ? $options['slots'] : [];
+
+    $defaults = [
+        1 => [
+            'enabled'        => true,
+            'offset_minutes' => 1440,
+            'template'       => srfa_default_template_long(),
+        ],
+        2 => [
+            'enabled'        => false,
+            'offset_minutes' => 60,
+            'template'       => srfa_default_template_short(),
+        ],
+    ];
+
+    $slots = [];
+    foreach ( [ 1, 2 ] as $n ) {
+        $s = isset( $stored[ $n ] ) && is_array( $stored[ $n ] ) ? $stored[ $n ] : [];
+        $slots[ $n ] = [
+            'enabled'        => ! empty( $s['enabled'] ),
+            'offset_minutes' => isset( $s['offset_minutes'] ) ? (int) $s['offset_minutes'] : $defaults[ $n ]['offset_minutes'],
+            'template'       => ( isset( $s['template'] ) && $s['template'] !== '' ) ? $s['template'] : $defaults[ $n ]['template'],
+        ];
+        // Force slot 1 to always be enabled (user cannot disable primary reminder)
+        if ( $n === 1 ) {
+            $slots[ $n ]['enabled'] = true;
+        }
+        // Valider l'offset contre les presets
+        if ( ! array_key_exists( $slots[ $n ]['offset_minutes'], srfa_reminder_offsets() ) ) {
+            $slots[ $n ]['offset_minutes'] = $defaults[ $n ]['offset_minutes'];
+        }
+    }
+    return $slots;
+}
+
+function srfa_get_active_slots() {
+    return array_filter( srfa_get_slots(), function ( $s ) {
+        return ! empty( $s['enabled'] );
+    } );
 }
 
 /**
@@ -147,6 +212,7 @@ function srfa_create_table() {
     $sql = "CREATE TABLE IF NOT EXISTS {$table} (
         id                   BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
         appointment_id       BIGINT(20) UNSIGNED NOT NULL,
+        reminder_slot        TINYINT(1)          NOT NULL DEFAULT 1,
         customer_phone       VARCHAR(63)         NOT NULL DEFAULT '',
         customer_name        VARCHAR(255)        NOT NULL DEFAULT '',
         appointment_datetime DATETIME            NOT NULL,
@@ -161,12 +227,61 @@ function srfa_create_table() {
         created_at           DATETIME            NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY  (id),
         KEY idx_appointment_id (appointment_id),
+        KEY idx_reminder_slot  (reminder_slot),
         KEY idx_sms_status     (sms_status),
         KEY idx_created_at     (created_at)
     ) {$charset};";
 
     require_once ABSPATH . 'wp-admin/includes/upgrade.php';
     dbDelta( $sql );
+}
+
+
+/**
+ * Migrations à exécuter à chaque chargement :
+ *   - Ajoute la colonne reminder_slot si elle manque (installs v1.0)
+ *   - Convertit l'ancien message_template / reminder_hours en structure slots
+ */
+function srfa_maybe_migrate() {
+    global $wpdb;
+
+    // 1. Migration table : ajouter reminder_slot si absent
+    $table = $wpdb->prefix . SRFA_LOG_TABLE;
+    $col   = $wpdb->get_var( $wpdb->prepare(
+        "SHOW COLUMNS FROM {$table} LIKE %s", 'reminder_slot'
+    ) );
+    if ( ! $col ) {
+        $wpdb->query( "ALTER TABLE {$table} ADD COLUMN reminder_slot TINYINT(1) NOT NULL DEFAULT 1 AFTER appointment_id" );
+        $wpdb->query( "ALTER TABLE {$table} ADD INDEX idx_reminder_slot (reminder_slot)" );
+        error_log( '[SMS Reminder] Migration table : colonne reminder_slot ajoutée, anciens logs marqués slot=1.' );
+    }
+
+    // 2. Migration options : convertir v1.0 (message_template + reminder_hours_*) → structure slots
+    $options = get_option( SRFA_OPTION_KEY, [] );
+    if ( ! isset( $options['slots'] ) ) {
+        $old_template = isset( $options['message_template'] ) && $options['message_template'] !== ''
+            ? $options['message_template']
+            : srfa_default_template_long();
+
+        $options['slots'] = [
+            1 => [
+                'enabled'        => true,
+                'offset_minutes' => 1440,
+                'template'       => $old_template,
+            ],
+            2 => [
+                'enabled'        => false,
+                'offset_minutes' => 60,
+                'template'       => srfa_default_template_short(),
+            ],
+        ];
+
+        // Supprimer les anciennes clés devenues obsolètes
+        unset( $options['message_template'], $options['reminder_hours_min'], $options['reminder_hours_max'] );
+
+        update_option( SRFA_OPTION_KEY, $options );
+        error_log( '[SMS Reminder] Migration options v1.0 → v1.1 : slots initialisés, ancien template conservé en SMS 1.' );
+    }
 }
 
 
@@ -235,9 +350,7 @@ add_action( 'srfa_weekly_purge', 'srfa_purge_old_logs' );
 // ─── Traitement principal : envoi des rappels ─────────────────────────────────
 
 function srfa_process_reminders() {
-    global $wpdb;
-
-    error_log( '[SMS Reminder] Démarrage du cron horaire.' );
+    error_log( '[SMS Reminder] Démarrage du cron.' );
 
     $api_key = srfa_get_option( 'api_key' );
     if ( empty( $api_key ) ) {
@@ -245,16 +358,33 @@ function srfa_process_reminders() {
         return;
     }
 
-    $prefix  = $wpdb->prefix;
-    $log_tbl = $prefix . SRFA_LOG_TABLE;
+    $active_slots = srfa_get_active_slots();
+    if ( empty( $active_slots ) ) {
+        error_log( '[SMS Reminder] Aucun slot de rappel actif. Rien à faire.' );
+        return;
+    }
 
-    $hours_min = (int) srfa_get_option( 'reminder_hours_min', 23 );
-    $hours_max = (int) srfa_get_option( 'reminder_hours_max', 25 );
+    foreach ( $active_slots as $slot_num => $slot_config ) {
+        srfa_process_slot( $slot_num, $slot_config );
+    }
+}
 
-    // Amelia stocke bookingStart en UTC (DateTimeService::setTimezone('UTC')),
-    // donc la fenêtre de comparaison doit être construite en UTC également.
-    $from = gmdate( 'Y-m-d H:i:s', time() + ( $hours_min * HOUR_IN_SECONDS ) );
-    $to   = gmdate( 'Y-m-d H:i:s', time() + ( $hours_max * HOUR_IN_SECONDS ) );
+/**
+ * Traite un slot donné : cherche les RDV qui entrent dans la fenêtre
+ * [offset, offset + cron_freq + 2min] et envoie le SMS correspondant.
+ */
+function srfa_process_slot( $slot_num, $slot_config ) {
+    global $wpdb;
+
+    $prefix    = $wpdb->prefix;
+    $log_tbl   = $prefix . SRFA_LOG_TABLE;
+    $offset    = (int) $slot_config['offset_minutes'];
+    $cron_freq = (int) srfa_get_option( 'cron_frequency', 15 );
+    $buffer    = 2; // minutes — marge pour compenser le drift WP-Cron
+
+    // Amelia stocke bookingStart en UTC — on construit la fenêtre en UTC.
+    $from = gmdate( 'Y-m-d H:i:s', time() + $offset * 60 );
+    $to   = gmdate( 'Y-m-d H:i:s', time() + ( $offset + $cron_freq + $buffer ) * 60 );
 
     $sql = $wpdb->prepare(
         "SELECT
@@ -288,25 +418,30 @@ function srfa_process_reminders() {
                 SELECT 1
                 FROM   {$log_tbl} AS l
                 WHERE  l.appointment_id       = appt.id
+                  AND  l.reminder_slot        = %d
                   AND  l.sms_status           IN ('pending', 'delivered')
                   AND  l.appointment_datetime = appt.bookingStart
           )
         GROUP BY appt.id",
         $from,
-        $to
+        $to,
+        $slot_num
     );
 
     $appointments = $wpdb->get_results( $sql );
 
     if ( empty( $appointments ) ) {
-        error_log( "[SMS Reminder] Aucun RDV à rappeler dans la fenêtre {$from} → {$to}." );
+        error_log( "[SMS Reminder] Slot {$slot_num} (offset {$offset}min) : aucun RDV dans la fenêtre {$from} → {$to}." );
         return;
     }
 
-    error_log( sprintf( '[SMS Reminder] %d RDV trouvés à traiter.', count( $appointments ) ) );
+    error_log( sprintf(
+        '[SMS Reminder] Slot %d (offset %dmin) : %d RDV à traiter.',
+        $slot_num, $offset, count( $appointments )
+    ) );
 
     foreach ( $appointments as $appt ) {
-        srfa_send_reminder( $appt );
+        srfa_send_reminder( $appt, $slot_num, $slot_config );
     }
 }
 
@@ -344,7 +479,7 @@ function srfa_format_phone( $phone ) {
  *   %appointment_date%       Date du RDV (ex : lundi 14 avril)
  *   %appointment_start_time% Heure de début (ex : 14h30)
  */
-function srfa_build_message( $appt ) {
+function srfa_build_message( $appt, $template ) {
     $dt         = get_date_from_gmt( $appt->appointment_datetime );
     $time_str   = date( 'H\hi', strtotime( $dt ) );
     $date_str   = date_i18n( 'l j F', strtotime( $dt ) );
@@ -356,8 +491,6 @@ function srfa_build_message( $appt ) {
     $emp_parts      = explode( ' ', $appt->employee_name, 2 );
     $emp_first_name = $emp_parts[0];
     $emp_last_name  = isset( $emp_parts[1] ) ? $emp_parts[1] : '';
-
-    $template = srfa_get_option( 'message_template' );
 
     $message = str_replace(
         [
@@ -395,14 +528,14 @@ function srfa_build_message( $appt ) {
 }
 
 
-function srfa_send_reminder( $appt ) {
+function srfa_send_reminder( $appt, $slot_num, $slot_config ) {
     $phone = srfa_format_phone( $appt->customer_phone );
     if ( ! $phone ) {
-        srfa_insert_log( $appt, 'skipped', null, 'Numéro invalide : ' . $appt->customer_phone );
+        srfa_insert_log( $appt, $slot_num, 'skipped', null, 'Numéro invalide : ' . $appt->customer_phone );
         return;
     }
 
-    $message = srfa_build_message( $appt );
+    $message = srfa_build_message( $appt, $slot_config['template'] );
     $api_key = srfa_get_option( 'api_key' );
     $sender  = srfa_get_option( 'sender' );
     $sandbox = (bool) srfa_get_option( 'sandbox' );
@@ -417,7 +550,8 @@ function srfa_send_reminder( $appt ) {
     ];
 
     error_log( sprintf(
-        '[SMS Reminder] Envoi SMS — RDV #%d, %s (%s), sandbox:%s',
+        '[SMS Reminder] Envoi SMS slot %d — RDV #%d, %s (%s), sandbox:%s',
+        $slot_num,
         $appt->appointment_id,
         $appt->customer_name,
         $phone,
@@ -434,8 +568,8 @@ function srfa_send_reminder( $appt ) {
 
     if ( is_wp_error( $response ) ) {
         $err = $response->get_error_message();
-        error_log( "[SMS Reminder] Erreur réseau — RDV #{$appt->appointment_id} : {$err}" );
-        srfa_insert_log( $appt, 'failed', null, 'Erreur réseau : ' . $err );
+        error_log( "[SMS Reminder] Erreur réseau — slot {$slot_num}, RDV #{$appt->appointment_id} : {$err}" );
+        srfa_insert_log( $appt, $slot_num, 'failed', null, 'Erreur réseau : ' . $err );
         return;
     }
 
@@ -443,17 +577,17 @@ function srfa_send_reminder( $appt ) {
     $body      = wp_remote_retrieve_body( $response );
     $data      = json_decode( $body, true );
 
-    error_log( "[SMS Reminder] Réponse API (HTTP {$http_code}) — RDV #{$appt->appointment_id} : {$body}" );
+    error_log( "[SMS Reminder] Réponse API (HTTP {$http_code}) — slot {$slot_num}, RDV #{$appt->appointment_id} : {$body}" );
 
     if ( $http_code === 200 && ! empty( $data['success'] ) && $data['success'] === true ) {
         $message_id = isset( $data['message_id'] ) ? (string) $data['message_id'] : null;
-        srfa_insert_log( $appt, 'pending', $message_id, null );
-        error_log( "[SMS Reminder] SMS accepté — RDV #{$appt->appointment_id}, message_id:{$message_id}" );
+        srfa_insert_log( $appt, $slot_num, 'pending', $message_id, null );
+        error_log( "[SMS Reminder] SMS accepté — slot {$slot_num}, RDV #{$appt->appointment_id}, message_id:{$message_id}" );
     } else {
         $error_code = isset( $data['code'] ) ? $data['code'] : $http_code;
         $error_msg  = srfa_api_error_label( $error_code ) . ' (code ' . $error_code . ')';
-        srfa_insert_log( $appt, 'failed', null, $error_msg );
-        error_log( "[SMS Reminder] Échec API — RDV #{$appt->appointment_id} : {$error_msg}" );
+        srfa_insert_log( $appt, $slot_num, 'failed', null, $error_msg );
+        error_log( "[SMS Reminder] Échec API — slot {$slot_num}, RDV #{$appt->appointment_id} : {$error_msg}" );
     }
 }
 
@@ -478,13 +612,14 @@ function srfa_api_error_label( $code ) {
 
 // ─── Insertion d'un log ───────────────────────────────────────────────────────
 
-function srfa_insert_log( $appt, $status, $message_id = null, $error_msg = null ) {
+function srfa_insert_log( $appt, $slot_num, $status, $message_id = null, $error_msg = null ) {
     global $wpdb;
 
     $wpdb->insert(
         $wpdb->prefix . SRFA_LOG_TABLE,
         [
             'appointment_id'       => (int) $appt->appointment_id,
+            'reminder_slot'        => (int) $slot_num,
             'customer_phone'       => $appt->customer_phone,
             'customer_name'        => $appt->customer_name,
             'appointment_datetime' => $appt->appointment_datetime,
@@ -497,7 +632,7 @@ function srfa_insert_log( $appt, $status, $message_id = null, $error_msg = null 
             'sent_at'              => ( $status !== 'skipped' ) ? current_time( 'mysql' ) : null,
             'created_at'           => current_time( 'mysql' ),
         ],
-        [ '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ]
+        [ '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ]
     );
 }
 
@@ -642,7 +777,6 @@ function srfa_register_settings() {
 function srfa_sanitize_settings( $input ) {
     $clean = [];
 
-    // Clé API : on ne la sauvegarde pas si elle est verrouillée par define()
     if ( ! srfa_is_locked( 'api_key' ) ) {
         $clean['api_key'] = sanitize_text_field( $input['api_key'] ?? '' );
     }
@@ -653,21 +787,13 @@ function srfa_sanitize_settings( $input ) {
 
     if ( ! srfa_is_locked( 'sender' ) ) {
         $sender = sanitize_text_field( $input['sender'] ?? 'Reminder' );
-        // SMS Partner : 3-11 caractères, alphanumérique, sans accents
         $sender = preg_replace( '/[^a-zA-Z0-9]/', '', $sender );
         $sender = substr( $sender, 0, 11 );
         if ( strlen( $sender ) < 3 ) { $sender = 'Reminder'; }
         $clean['sender'] = $sender;
     }
 
-    $clean['message_template']   = sanitize_textarea_field( $input['message_template'] ?? '' );
-    $clean['purge_days']         = max( 7, min( 365, (int) ( $input['purge_days'] ?? 30 ) ) );
-    $clean['reminder_hours_min'] = max( 1,  min( 47, (int) ( $input['reminder_hours_min'] ?? 23 ) ) );
-    $clean['reminder_hours_max'] = max( 2,  min( 48, (int) ( $input['reminder_hours_max'] ?? 25 ) ) );
-
-    if ( $clean['reminder_hours_min'] >= $clean['reminder_hours_max'] ) {
-        $clean['reminder_hours_max'] = $clean['reminder_hours_min'] + 2;
-    }
+    $clean['purge_days'] = max( 7, min( 365, (int) ( $input['purge_days'] ?? 30 ) ) );
 
     // Fréquence du cron — valider que c'est une valeur autorisée
     $allowed_freqs = array_keys( srfa_cron_frequencies() );
@@ -675,13 +801,43 @@ function srfa_sanitize_settings( $input ) {
     if ( ! in_array( $new_freq, $allowed_freqs, true ) ) { $new_freq = 15; }
     $clean['cron_frequency'] = $new_freq;
 
+    // Slots de rappel — validation offset contre presets, template trimmé
+    $allowed_offsets = array_keys( srfa_reminder_offsets() );
+    $defaults_slot   = [
+        1 => [ 'offset_minutes' => 1440, 'template' => srfa_default_template_long() ],
+        2 => [ 'offset_minutes' => 60,   'template' => srfa_default_template_short() ],
+    ];
+
+    $clean['slots'] = [];
+    foreach ( [ 1, 2 ] as $n ) {
+        $in = isset( $input['slots'][ $n ] ) && is_array( $input['slots'][ $n ] ) ? $input['slots'][ $n ] : [];
+
+        // Slot 1 toujours actif ; slot 2 contrôlé par checkbox
+        $enabled = ( $n === 1 ) ? true : ! empty( $in['enabled'] );
+
+        $offset = (int) ( $in['offset_minutes'] ?? $defaults_slot[ $n ]['offset_minutes'] );
+        if ( ! in_array( $offset, $allowed_offsets, true ) ) {
+            $offset = $defaults_slot[ $n ]['offset_minutes'];
+        }
+
+        $template = sanitize_textarea_field( $in['template'] ?? '' );
+        if ( $template === '' ) {
+            $template = $defaults_slot[ $n ]['template'];
+        }
+
+        $clean['slots'][ $n ] = [
+            'enabled'        => $enabled,
+            'offset_minutes' => $offset,
+            'template'       => $template,
+        ];
+    }
+
     // Si la fréquence a changé, replanifier le cron
     $old_options = get_option( SRFA_OPTION_KEY, [] );
     $old_freq    = (int) ( $old_options['cron_frequency'] ?? 15 );
     if ( $new_freq !== $old_freq ) {
         srfa_clear_crons();
         wp_schedule_event( time(), 'srfa_every_' . $new_freq . 'min', 'srfa_hourly_send' );
-        // Replanifier la purge aussi (elle n'est pas touchée par la fréquence, mais clear_crons la supprime)
         $next_monday = strtotime( 'next monday 03:00' );
         wp_schedule_event( $next_monday, 'weekly', 'srfa_weekly_purge' );
         error_log( "[SMS Reminder] Fréquence du cron changée : {$old_freq}min → {$new_freq}min" );
@@ -728,4 +884,5 @@ add_action( 'plugins_loaded', function () {
         srfa_create_table();
         srfa_register_crons();
     }
+    srfa_maybe_migrate();
 }, 5 );
