@@ -1,6 +1,6 @@
 # SMS Reminder for Amelia
 
-Plugin WordPress qui envoie automatiquement un SMS de rappel à vos clients 24h avant leurs rendez-vous [Amelia Booking](https://wpamelia.com/).
+Plugin WordPress qui envoie automatiquement un SMS de rappel à vos clients 24h avant leurs rendez-vous [Amelia Booking](https://tms-plugins.sjv.io/3kjk9n).
 
 Développé par **[Capitaine Site](https://capitainesite.com/)** — Agence experte WordPress.
 
@@ -31,7 +31,7 @@ Développé par **[Capitaine Site](https://capitainesite.com/)** — Agence expe
 
 - WordPress 6.0+
 - PHP 7.4+
-- [Amelia Booking](https://wpamelia.com/) installé et actif
+- [Amelia Booking](https://tms-plugins.sjv.io/3kjk9n) installé et actif
 - Un compte [SMS Partner](https://www.smspartner.fr/) avec une clé API
 
 ---
@@ -108,6 +108,12 @@ https://votre-site.fr/wp-json/srfa/v1/sms-delivery
 ## 📄 Licence
 
 Ce plugin est distribué sous licence **GPL-2.0-or-later**. Voir [LICENSE](LICENSE).
+
+---
+
+## 💡 Transparence
+
+> Les liens vers Amelia Booking dans ce README sont des liens d'affiliation. Si tu achètes Amelia via ces liens, l'agence Capitaine Site touche une petite commission, sans surcoût pour toi. Merci pour le soutien 🙏
 
 ---
 
