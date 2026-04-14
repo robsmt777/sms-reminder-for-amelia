@@ -1,14 +1,14 @@
 <?php
 /**
- * Page d'administration : Outils → SMS Reminder Logs
+ * Admin page: Tools → SMS Reminder Logs
  *
- * Affiche :
- *  - Le statut de configuration (clé API, mode sandbox, crons)
- *  - Un bouton pour déclencher manuellement le cron
- *  - Les 50 derniers logs SMS avec pagination simple
+ * Displays:
+ *  - Configuration status (API key, sandbox mode, crons)
+ *  - Manual "run now" button
+ *  - Last 50 SMS logs with simple pagination
  *
- * Ce fichier est inclus par srfa_render_admin_page() — WordPress est
- * déjà chargé, $wpdb disponible, l'utilisateur est authentifié et admin.
+ * Included by srfa_render_logs_page() — WordPress already loaded,
+ * $wpdb available, user authenticated as admin.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -33,7 +33,7 @@ $logs = $wpdb->get_results( $wpdb->prepare(
     $offset
 ) );
 
-// ── Compteurs par statut ──────────────────────────────────────────────────────
+// ── Counters by status ────────────────────────────────────────────────────────
 $counts = $wpdb->get_results(
     "SELECT sms_status, COUNT(*) AS cnt FROM {$log_tbl} GROUP BY sms_status",
     OBJECT_K
@@ -43,12 +43,12 @@ function srfa_count( $status, $counts ) {
     return isset( $counts[ $status ] ) ? (int) $counts[ $status ]->cnt : 0;
 }
 
-// ── Labels et couleurs des statuts ────────────────────────────────────────────
+// ── Status labels & colors ────────────────────────────────────────────────────
 $status_labels = [
-    'pending'   => [ 'label' => 'En attente',  'color' => '#f0ad4e', 'bg' => '#fff8ee' ],
-    'delivered' => [ 'label' => 'Délivré',     'color' => '#5cb85c', 'bg' => '#f0fff0' ],
-    'failed'    => [ 'label' => 'Échec',       'color' => '#d9534f', 'bg' => '#fff0f0' ],
-    'skipped'   => [ 'label' => 'Ignoré',      'color' => '#999',    'bg' => '#f8f8f8' ],
+    'pending'   => [ 'label' => __( 'Pending',   'sms-reminder-for-amelia' ), 'color' => '#f0ad4e', 'bg' => '#fff8ee' ],
+    'delivered' => [ 'label' => __( 'Delivered', 'sms-reminder-for-amelia' ), 'color' => '#5cb85c', 'bg' => '#f0fff0' ],
+    'failed'    => [ 'label' => __( 'Failed',    'sms-reminder-for-amelia' ), 'color' => '#d9534f', 'bg' => '#fff0f0' ],
+    'skipped'   => [ 'label' => __( 'Skipped',   'sms-reminder-for-amelia' ), 'color' => '#999',    'bg' => '#f8f8f8' ],
 ];
 
 function srfa_status_badge( $status, $labels ) {
@@ -62,7 +62,7 @@ function srfa_status_badge( $status, $labels ) {
     return '<span style="' . $style . '">' . esc_html( $info['label'] ) . '</span>';
 }
 
-// ── Vérification de la configuration ─────────────────────────────────────────
+// ── Config check ─────────────────────────────────────────────────────────────
 $api_key_ok     = ! empty( srfa_get_option( 'api_key' ) );
 $sandbox_on     = (bool) srfa_get_option( 'sandbox' );
 $cron_next      = wp_next_scheduled( 'srfa_hourly_send' );
@@ -73,103 +73,111 @@ $settings_url   = admin_url( 'options-general.php?page=srfa-settings' );
 <div class="wrap" style="max-width:1200px;">
 
     <h1 style="display:flex;align-items:center;gap:10px;">
-        <span style="font-size:28px;">💬</span> SMS Reminder — Logs des rappels
+        <span style="font-size:28px;">💬</span> <?php esc_html_e( 'SMS Reminder — Reminder logs', 'sms-reminder-for-amelia' ); ?>
         <a href="<?php echo esc_url( $settings_url ); ?>"
            class="button button-secondary" style="margin-left:auto;font-size:13px;">
-            ⚙️ Réglages
+            ⚙️ <?php esc_html_e( 'Settings', 'sms-reminder-for-amelia' ); ?>
         </a>
     </h1>
 
     <?php if ( ! empty( $_GET['srfa_ran'] ) ) : ?>
         <div class="notice notice-success is-dismissible">
-            <p><strong>Cron exécuté manuellement.</strong> Consultez les logs ci-dessous pour voir les résultats.</p>
+            <p><strong><?php esc_html_e( 'Cron executed manually.', 'sms-reminder-for-amelia' ); ?></strong>
+            <?php esc_html_e( 'See the logs below for results.', 'sms-reminder-for-amelia' ); ?></p>
         </div>
     <?php endif; ?>
 
     <?php if ( ! $api_key_ok ) : ?>
         <div class="notice notice-error">
-            <p><strong>⚠️ Clé API manquante !</strong>
-            Renseignez-la dans <a href="<?php echo esc_url( $settings_url ); ?>">Réglages → SMS Reminder</a>
-            ou via <code>define( 'SRFA_API_KEY', 'votre_cle' );</code> dans <code>wp-config.php</code>.</p>
+            <p><strong>⚠️ <?php esc_html_e( 'API key missing!', 'sms-reminder-for-amelia' ); ?></strong>
+            <?php
+            printf(
+                /* translators: 1: Settings page hyperlink, 2: wp-config define snippet. */
+                esc_html__( 'Set it in %1$s or via %2$s in wp-config.php.', 'sms-reminder-for-amelia' ),
+                '<a href="' . esc_url( $settings_url ) . '">' . esc_html__( 'Settings → SMS Reminder', 'sms-reminder-for-amelia' ) . '</a>',
+                "<code>define( 'SRFA_API_KEY', 'your_key' );</code>"
+            );
+            ?></p>
         </div>
     <?php endif; ?>
 
     <?php if ( $sandbox_on ) : ?>
         <div class="notice notice-warning">
-            <p><strong>🧪 Mode sandbox actif.</strong>
-            Les SMS ne sont pas réellement envoyés.
-            <a href="<?php echo esc_url( $settings_url ); ?>">Désactivez-le dans les Réglages</a> pour passer en production.</p>
+            <p><strong>🧪 <?php esc_html_e( 'Sandbox mode is active.', 'sms-reminder-for-amelia' ); ?></strong>
+            <?php esc_html_e( 'SMS messages are not actually sent.', 'sms-reminder-for-amelia' ); ?>
+            <a href="<?php echo esc_url( $settings_url ); ?>"><?php esc_html_e( 'Disable it in Settings', 'sms-reminder-for-amelia' ); ?></a>
+            <?php esc_html_e( 'to switch to production.', 'sms-reminder-for-amelia' ); ?></p>
         </div>
     <?php endif; ?>
 
-    <!-- ── Bloc de configuration ─────────────────────────────────────────── -->
+    <!-- ── Configuration tiles ────────────────────────────────────────────── -->
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:20px 0;">
 
         <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px;">
-            <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Clé API</div>
+            <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;"><?php esc_html_e( 'API key', 'sms-reminder-for-amelia' ); ?></div>
             <?php if ( $api_key_ok ) : ?>
-                <span style="color:#16a34a;font-weight:600;">✓ Configurée</span>
+                <span style="color:#16a34a;font-weight:600;">✓ <?php esc_html_e( 'Configured', 'sms-reminder-for-amelia' ); ?></span>
                 <div style="font-size:12px;color:#64748b;margin-top:4px;">
-                    Sender : <?php echo esc_html( srfa_get_option( 'sender' ) ); ?>
+                    <?php esc_html_e( 'Sender:', 'sms-reminder-for-amelia' ); ?> <?php echo esc_html( srfa_get_option( 'sender' ) ); ?>
                 </div>
                 <?php if ( srfa_is_locked( 'api_key' ) ) : ?>
                     <div style="margin-top:6px;font-size:11px;color:#92400e;background:#fef3c7;padding:2px 8px;border-radius:10px;display:inline-block;">🔒 wp-config.php</div>
                 <?php else : ?>
-                    <div style="margin-top:6px;font-size:11px;color:#1d4ed8;background:#eff6ff;padding:2px 8px;border-radius:10px;display:inline-block;">⚙️ Dashboard</div>
+                    <div style="margin-top:6px;font-size:11px;color:#1d4ed8;background:#eff6ff;padding:2px 8px;border-radius:10px;display:inline-block;">⚙️ <?php esc_html_e( 'Dashboard', 'sms-reminder-for-amelia' ); ?></div>
                 <?php endif; ?>
             <?php else : ?>
-                <span style="color:#dc2626;font-weight:600;">✗ Manquante</span>
+                <span style="color:#dc2626;font-weight:600;">✗ <?php esc_html_e( 'Missing', 'sms-reminder-for-amelia' ); ?></span>
                 <div style="margin-top:6px;">
-                    <a href="<?php echo esc_url( $settings_url ); ?>" style="font-size:12px;">→ Configurer</a>
+                    <a href="<?php echo esc_url( $settings_url ); ?>" style="font-size:12px;">→ <?php esc_html_e( 'Configure', 'sms-reminder-for-amelia' ); ?></a>
                 </div>
             <?php endif; ?>
         </div>
 
         <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px;">
-            <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Mode</div>
+            <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;"><?php esc_html_e( 'Mode', 'sms-reminder-for-amelia' ); ?></div>
             <?php if ( $sandbox_on ) : ?>
-                <span style="color:#d97706;font-weight:600;">🧪 Sandbox</span>
+                <span style="color:#d97706;font-weight:600;">🧪 <?php esc_html_e( 'Sandbox', 'sms-reminder-for-amelia' ); ?></span>
             <?php else : ?>
-                <span style="color:#16a34a;font-weight:600;">🚀 Production</span>
+                <span style="color:#16a34a;font-weight:600;">🚀 <?php esc_html_e( 'Production', 'sms-reminder-for-amelia' ); ?></span>
             <?php endif; ?>
             <?php if ( srfa_is_locked( 'sandbox' ) ) : ?>
                 <div style="margin-top:6px;font-size:11px;color:#92400e;background:#fef3c7;padding:2px 8px;border-radius:10px;display:inline-block;">🔒 wp-config.php</div>
             <?php else : ?>
-                <div style="margin-top:6px;font-size:11px;color:#1d4ed8;background:#eff6ff;padding:2px 8px;border-radius:10px;display:inline-block;">⚙️ Dashboard</div>
+                <div style="margin-top:6px;font-size:11px;color:#1d4ed8;background:#eff6ff;padding:2px 8px;border-radius:10px;display:inline-block;">⚙️ <?php esc_html_e( 'Dashboard', 'sms-reminder-for-amelia' ); ?></div>
             <?php endif; ?>
         </div>
 
         <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px;">
-            <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Cron — envoi</div>
+            <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;"><?php esc_html_e( 'Cron — sending', 'sms-reminder-for-amelia' ); ?></div>
             <?php if ( $cron_next ) : ?>
-                <span style="color:#16a34a;font-weight:600;">✓ Actif</span>
-                <div style="font-size:12px;color:#64748b;margin-top:4px;">Prochain : <?php echo esc_html( wp_date( 'd/m/Y H:i', $cron_next ) ); ?></div>
+                <span style="color:#16a34a;font-weight:600;">✓ <?php esc_html_e( 'Active', 'sms-reminder-for-amelia' ); ?></span>
+                <div style="font-size:12px;color:#64748b;margin-top:4px;"><?php esc_html_e( 'Next:', 'sms-reminder-for-amelia' ); ?> <?php echo esc_html( wp_date( 'd/m/Y H:i', $cron_next ) ); ?></div>
             <?php else : ?>
-                <span style="color:#dc2626;font-weight:600;">✗ Inactif</span>
+                <span style="color:#dc2626;font-weight:600;">✗ <?php esc_html_e( 'Inactive', 'sms-reminder-for-amelia' ); ?></span>
             <?php endif; ?>
         </div>
 
         <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px;">
-            <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Cron — purge</div>
+            <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;"><?php esc_html_e( 'Cron — purge', 'sms-reminder-for-amelia' ); ?></div>
             <?php if ( $cron_purge ) : ?>
-                <span style="color:#16a34a;font-weight:600;">✓ Actif</span>
-                <div style="font-size:12px;color:#64748b;margin-top:4px;">Prochain : <?php echo esc_html( wp_date( 'd/m/Y H:i', $cron_purge ) ); ?></div>
+                <span style="color:#16a34a;font-weight:600;">✓ <?php esc_html_e( 'Active', 'sms-reminder-for-amelia' ); ?></span>
+                <div style="font-size:12px;color:#64748b;margin-top:4px;"><?php esc_html_e( 'Next:', 'sms-reminder-for-amelia' ); ?> <?php echo esc_html( wp_date( 'd/m/Y H:i', $cron_purge ) ); ?></div>
             <?php else : ?>
-                <span style="color:#dc2626;font-weight:600;">✗ Inactif</span>
+                <span style="color:#dc2626;font-weight:600;">✗ <?php esc_html_e( 'Inactive', 'sms-reminder-for-amelia' ); ?></span>
             <?php endif; ?>
         </div>
 
     </div>
 
-    <!-- ── Statistiques rapides ───────────────────────────────────────────── -->
+    <!-- ── Quick stats ──────────────────────────────────────────────────── -->
     <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px;">
         <?php
         $stat_items = [
-            [ 'label' => 'Total',      'value' => $total_rows,                                  'color' => '#1e293b' ],
-            [ 'label' => 'En attente', 'value' => srfa_count( 'pending',   $counts ),       'color' => '#d97706' ],
-            [ 'label' => 'Délivrés',   'value' => srfa_count( 'delivered', $counts ),       'color' => '#16a34a' ],
-            [ 'label' => 'Échecs',     'value' => srfa_count( 'failed',    $counts ),       'color' => '#dc2626' ],
-            [ 'label' => 'Ignorés',    'value' => srfa_count( 'skipped',   $counts ),       'color' => '#64748b' ],
+            [ 'label' => __( 'Total',     'sms-reminder-for-amelia' ), 'value' => $total_rows,                             'color' => '#1e293b' ],
+            [ 'label' => __( 'Pending',   'sms-reminder-for-amelia' ), 'value' => srfa_count( 'pending',   $counts ),  'color' => '#d97706' ],
+            [ 'label' => __( 'Delivered', 'sms-reminder-for-amelia' ), 'value' => srfa_count( 'delivered', $counts ),  'color' => '#16a34a' ],
+            [ 'label' => __( 'Failed',    'sms-reminder-for-amelia' ), 'value' => srfa_count( 'failed',    $counts ),  'color' => '#dc2626' ],
+            [ 'label' => __( 'Skipped',   'sms-reminder-for-amelia' ), 'value' => srfa_count( 'skipped',   $counts ),  'color' => '#64748b' ],
         ];
         foreach ( $stat_items as $s ) :
         ?>
@@ -180,30 +188,30 @@ $settings_url   = admin_url( 'options-general.php?page=srfa-settings' );
         <?php endforeach; ?>
     </div>
 
-    <!-- ── Actions manuelles ─────────────────────────────────────────────── -->
+    <!-- ── Manual actions ───────────────────────────────────────────────── -->
     <div style="margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
         <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
             <?php wp_nonce_field( 'srfa_run_now' ); ?>
             <input type="hidden" name="action" value="srfa_run_now">
             <button type="submit" class="button button-primary"
-                    onclick="return confirm('Lancer le traitement des rappels SMS maintenant ?')">
-                ▶ Lancer le cron maintenant
+                    onclick="return confirm('<?php echo esc_js( __( 'Run SMS reminder processing now?', 'sms-reminder-for-amelia' ) ); ?>')">
+                ▶ <?php esc_html_e( 'Run cron now', 'sms-reminder-for-amelia' ); ?>
             </button>
         </form>
 
         <div style="font-size:12px;color:#64748b;">
-            Endpoint DLR :
+            <?php esc_html_e( 'DLR endpoint:', 'sms-reminder-for-amelia' ); ?>
             <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:11px;">
                 <?php echo esc_html( rest_url( 'srfa/v1/sms-delivery' ) ); ?>
             </code>
         </div>
     </div>
 
-    <!-- ── Tableau des logs ───────────────────────────────────────────────── -->
+    <!-- ── Logs table ───────────────────────────────────────────────────── -->
     <?php if ( empty( $logs ) ) : ?>
         <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:40px;text-align:center;color:#64748b;">
             <div style="font-size:40px;margin-bottom:12px;">📭</div>
-            <p>Aucun log pour l'instant. Le cron enverra les premiers rappels dans l'heure.</p>
+            <p><?php esc_html_e( 'No logs yet. The cron will send the first reminders within the hour.', 'sms-reminder-for-amelia' ); ?></p>
         </div>
     <?php else : ?>
 
@@ -211,26 +219,23 @@ $settings_url   = admin_url( 'options-general.php?page=srfa-settings' );
             <table class="wp-list-table widefat fixed striped" style="border:none;">
                 <thead>
                     <tr>
-                        <th style="width:140px;">Date RDV</th>
-                        <th style="width:60px;text-align:center;" title="Slot de rappel (SMS 1 = principal, SMS 2 = complémentaire)">Slot</th>
-                        <th style="width:160px;">Client</th>
-                        <th style="width:120px;">Téléphone</th>
-                        <th>Service</th>
-                        <th style="width:130px;">Employée</th>
-                        <th style="width:100px;">Statut SMS</th>
-                        <th style="width:130px;">Envoyé le</th>
-                        <th style="width:130px;">Délivré le</th>
-                        <th style="width:40px;text-align:center;" title="Détails">⋯</th>
+                        <th style="width:140px;"><?php esc_html_e( 'Appointment date', 'sms-reminder-for-amelia' ); ?></th>
+                        <th style="width:60px;text-align:center;" title="<?php echo esc_attr__( 'Reminder slot (SMS 1 = primary, SMS 2 = secondary)', 'sms-reminder-for-amelia' ); ?>"><?php esc_html_e( 'Slot', 'sms-reminder-for-amelia' ); ?></th>
+                        <th style="width:160px;"><?php esc_html_e( 'Customer', 'sms-reminder-for-amelia' ); ?></th>
+                        <th style="width:120px;"><?php esc_html_e( 'Phone', 'sms-reminder-for-amelia' ); ?></th>
+                        <th><?php esc_html_e( 'Service', 'sms-reminder-for-amelia' ); ?></th>
+                        <th style="width:130px;"><?php esc_html_e( 'Employee', 'sms-reminder-for-amelia' ); ?></th>
+                        <th style="width:100px;"><?php esc_html_e( 'SMS status', 'sms-reminder-for-amelia' ); ?></th>
+                        <th style="width:130px;"><?php esc_html_e( 'Sent at', 'sms-reminder-for-amelia' ); ?></th>
+                        <th style="width:130px;"><?php esc_html_e( 'Delivered at', 'sms-reminder-for-amelia' ); ?></th>
+                        <th style="width:40px;text-align:center;" title="<?php echo esc_attr__( 'Details', 'sms-reminder-for-amelia' ); ?>">⋯</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ( $logs as $log ) :
-                        // appointment_datetime est stocké en UTC (comme Amelia) — conversion vers l'heure locale WP pour affichage
                         $appt_dt  = date_i18n( 'd/m/Y H:i', strtotime( get_date_from_gmt( $log->appointment_datetime ) ) );
                         $sent_dt  = $log->sent_at    ? date_i18n( 'd/m/Y H:i', strtotime( $log->sent_at ) )     : '—';
                         $deliv_dt = $log->delivery_at ? date_i18n( 'd/m/Y H:i', strtotime( $log->delivery_at ) ) : '—';
-                    ?>
-                    <?php
                         $slot_num = isset( $log->reminder_slot ) ? (int) $log->reminder_slot : 1;
                         $slot_bg  = $slot_num === 1 ? '#dbeafe' : '#fae8ff';
                         $slot_fg  = $slot_num === 1 ? '#1e40af' : '#86198f';
@@ -251,7 +256,7 @@ $settings_url   = admin_url( 'options-general.php?page=srfa-settings' );
                         <td style="font-size:12px;color:#64748b;"><?php echo esc_html( $deliv_dt ); ?></td>
                         <td style="text-align:center;">
                             <?php if ( $log->error_message || $log->sms_message_id ) : ?>
-                            <span title="<?php echo esc_attr( $log->error_message ?: 'ID : ' . $log->sms_message_id ); ?>"
+                            <span title="<?php echo esc_attr( $log->error_message ?: __( 'ID:', 'sms-reminder-for-amelia' ) . ' ' . $log->sms_message_id ); ?>"
                                   style="cursor:help;color:#64748b;">ℹ</span>
                             <?php endif; ?>
                         </td>
@@ -265,8 +270,13 @@ $settings_url   = admin_url( 'options-general.php?page=srfa-settings' );
         <?php if ( $total_pages > 1 ) : ?>
         <div style="margin-top:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <span style="color:#64748b;font-size:13px;">
-                Page <?php echo esc_html( $current_page ); ?> / <?php echo esc_html( $total_pages ); ?>
-                (<?php echo esc_html( $total_rows ); ?> entrées)
+                <?php
+                printf(
+                    /* translators: 1: current page, 2: total pages, 3: total entries. */
+                    esc_html__( 'Page %1$d / %2$d (%3$d entries)', 'sms-reminder-for-amelia' ),
+                    (int) $current_page, (int) $total_pages, (int) $total_rows
+                );
+                ?>
             </span>
             <div style="margin-left:auto;display:flex;gap:4px;">
                 <?php for ( $p = 1; $p <= $total_pages; $p++ ) :
@@ -287,9 +297,15 @@ $settings_url   = admin_url( 'options-general.php?page=srfa-settings' );
     <?php endif; // empty logs ?>
 
     <p style="margin-top:24px;font-size:12px;color:#94a3b8;">
-        Les logs sont purgés automatiquement après <?php echo esc_html( srfa_get_option( 'purge_days', 30 ) ); ?> jours.
-        Préfixe de table détecté : <code><?php echo esc_html( $wpdb->prefix ); ?></code> —
-        <a href="<?php echo esc_url( $settings_url ); ?>" style="color:#94a3b8;">Modifier les réglages</a>
+        <?php
+        printf(
+            /* translators: 1: retention days, 2: table prefix code, 3: settings link. */
+            esc_html__( 'Logs are purged automatically after %1$d days. Detected table prefix: %2$s — %3$s', 'sms-reminder-for-amelia' ),
+            (int) srfa_get_option( 'purge_days', 30 ),
+            '<code>' . esc_html( $wpdb->prefix ) . '</code>',
+            '<a href="' . esc_url( $settings_url ) . '" style="color:#94a3b8;">' . esc_html__( 'Edit settings', 'sms-reminder-for-amelia' ) . '</a>'
+        );
+        ?>
     </p>
 
     <?php srfa_render_branding_footer(); ?>

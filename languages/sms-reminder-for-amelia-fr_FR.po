@@ -1,0 +1,440 @@
+# French translation for SMS Reminder for Amelia
+# Copyright (C) 2026 Capitaine Site
+# This file is distributed under the GPL-2.0-or-later license.
+msgid ""
+msgstr ""
+"Project-Id-Version: SMS Reminder for Amelia 1.2.0\n"
+"Report-Msgid-Bugs-To: https://github.com/robsmt777/sms-reminder-for-amelia/issues\n"
+"POT-Creation-Date: 2026-04-14 00:00+0000\n"
+"PO-Revision-Date: 2026-04-14 00:00+0000\n"
+"Last-Translator: Capitaine Site <contact@capitainesite.com>\n"
+"Language-Team: French <fr@li.org>\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Domain: sms-reminder-for-amelia\n"
+
+msgid "10 minutes before"
+msgstr "10 minutes avant"
+
+msgid "30 minutes before"
+msgstr "30 minutes avant"
+
+msgid "1 hour before"
+msgstr "1 heure avant"
+
+msgid "2 hours before"
+msgstr "2 heures avant"
+
+msgid "4 hours before"
+msgstr "4 heures avant"
+
+msgid "8 hours before"
+msgstr "8 heures avant"
+
+msgid "12 hours before"
+msgstr "12 heures avant"
+
+msgid "24 hours before (the day prior)"
+msgstr "24 heures avant (la veille)"
+
+msgid "48 hours before (2 days)"
+msgstr "48 heures avant (2 jours)"
+
+msgid "%location_name%: Hello %customer_full_name%, reminder of your appointment tomorrow at %appointment_start_time% with %employee_first_name% for %service_name%. Please let us know if you need to cancel."
+msgstr "%location_name% : Bonjour %customer_full_name%, RDV demain à %appointment_start_time% avec %employee_first_name% pour %service_name%. Merci de prévenir si annulation."
+
+msgid "%location_name%: Reminder, your appointment is at %appointment_start_time% with %employee_first_name%. See you soon!"
+msgstr "%location_name% : Rappel, votre RDV est à %appointment_start_time% avec %employee_first_name%. À tout à l'heure !"
+
+msgid "Every 1 minute"
+msgstr "Toutes les 1 minute"
+
+msgid "Every 5 minutes"
+msgstr "Toutes les 5 minutes"
+
+msgid "Every 10 minutes"
+msgstr "Toutes les 10 minutes"
+
+msgid "Every 15 minutes"
+msgstr "Toutes les 15 minutes"
+
+msgid "Every 30 minutes"
+msgstr "Toutes les 30 minutes"
+
+msgid "Every hour"
+msgstr "Toutes les heures"
+
+msgid "Missing API key"
+msgstr "Clé API manquante"
+
+msgid "Missing phoneNumbers field"
+msgstr "Champ phoneNumbers manquant"
+
+msgid "Invalid API key"
+msgstr "Clé API incorrecte"
+
+msgid "Insufficient credits"
+msgstr "Crédits insuffisants"
+
+msgid "Number on STOP SMS list"
+msgstr "Numéro en liste STOP SMS"
+
+msgid "Account disabled"
+msgstr "Compte désactivé"
+
+msgid "Account blocked"
+msgstr "Compte bloqué"
+
+msgid "Low-cost SMS limited to 160 characters"
+msgstr "SMS low-cost limité à 160 caractères"
+
+msgid "Max 500 numbers per request exceeded"
+msgstr "Maximum 500 numéros par requête dépassé"
+
+msgid "Malformed JSON syntax"
+msgstr "Syntaxe JSON malformée"
+
+msgid "Unauthorized IP address"
+msgstr "Adresse IP non autorisée"
+
+msgid "Unknown error"
+msgstr "Erreur inconnue"
+
+msgid "SMS Reminder — Logs"
+msgstr "SMS Reminder — Logs"
+
+msgid "SMS Reminder Logs"
+msgstr "SMS Reminder Logs"
+
+msgid "SMS Reminder — Settings"
+msgstr "SMS Reminder — Réglages"
+
+msgid "SMS Reminder"
+msgstr "SMS Reminder"
+
+msgid "Developed by %s — WordPress agency."
+msgstr "Développé par %s, agence experte WordPress."
+
+msgid "Access denied."
+msgstr "Accès refusé."
+
+msgid "Settings"
+msgstr "Réglages"
+
+msgid "Logs"
+msgstr "Logs"
+
+msgid "Paris Salon"
+msgstr "Salon Paris"
+
+msgid "Sophie"
+msgstr "Sophie"
+
+msgid "Martin"
+msgstr "Martin"
+
+msgid "Sophie Martin"
+msgstr "Sophie Martin"
+
+msgid "Claire"
+msgstr "Claire"
+
+msgid "Dupont"
+msgstr "Dupont"
+
+msgid "Claire Dupont"
+msgstr "Claire Dupont"
+
+msgid "Facial care"
+msgstr "Soin du visage"
+
+msgid "Monday April 14"
+msgstr "lundi 14 avril"
+
+msgid "SMS %d preview (sample data)"
+msgstr "Aperçu SMS %d (données fictives)"
+
+msgid "characters"
+msgstr "caractères"
+
+msgid "SMS segment(s)"
+msgstr "segment(s) SMS"
+
+msgid "(160 chars/segment)"
+msgstr "(160 car./segment)"
+
+msgid "Configuration of the SMS appointment reminder plugin."
+msgstr "Configuration du plugin d'envoi de SMS de rappel de rendez-vous."
+
+msgid "View logs"
+msgstr "Voir les logs"
+
+msgid "Settings saved."
+msgstr "Réglages enregistrés."
+
+msgid "SMS Partner API"
+msgstr "API SMS Partner"
+
+msgid "API key"
+msgstr "Clé API"
+
+msgid "Your SMS Partner API key"
+msgstr "Votre clé API SMS Partner"
+
+msgid "Show"
+msgstr "Afficher"
+
+msgid "Find your key in SMS Partner dashboard → Settings → API."
+msgstr "Trouvez votre clé dans le dashboard SMS Partner → Paramètres → API."
+
+msgid "Sender"
+msgstr "Expéditeur"
+
+msgid "3 to 11 alphanumeric characters, no spaces or accents. Displayed in place of the phone number on the recipient phone."
+msgstr "3 à 11 caractères alphanumériques, sans espaces ni accents. Affiché à la place du numéro sur le téléphone du client."
+
+msgid "Sandbox mode"
+msgstr "Mode sandbox"
+
+msgid "Active (test)"
+msgstr "Actif (test)"
+
+msgid "Inactive (production)"
+msgstr "Inactif (production)"
+
+msgid "Enable test mode (no SMS actually sent, no credit used)"
+msgstr "Activer le mode test (aucun SMS réellement envoyé, aucun crédit débité)"
+
+msgid "Disable this to switch to production."
+msgstr "Désactivez cette option pour passer en production."
+
+msgid "SMS reminders"
+msgstr "Rappels SMS"
+
+msgid "Configure up to 2 reminders per appointment. SMS 1 is mandatory, SMS 2 is optional. Each slot has its own timing and message."
+msgstr "Configurez jusqu'à 2 rappels par rendez-vous. Le SMS 1 est obligatoire, le SMS 2 est optionnel. Chaque slot a son propre timing et son propre message."
+
+msgid "SMS 1 (required)"
+msgstr "SMS 1 (obligatoire)"
+
+msgid "SMS 2 (optional)"
+msgstr "SMS 2 (optionnel)"
+
+msgid "Enable this reminder"
+msgstr "Activer ce rappel"
+
+msgid "Always active"
+msgstr "Toujours actif"
+
+msgid "Send"
+msgstr "Envoyer"
+
+msgid "For very short reminders (< 1h), consider lowering the cron frequency below to 5 min or less."
+msgstr "Pour des rappels très courts (< 1h), pensez à ajuster la fréquence du cron ci-dessous à 5 min ou moins."
+
+msgid "Message"
+msgstr "Message"
+
+msgid "Available template variables"
+msgstr "Variables disponibles dans les templates"
+
+msgid "Cron frequency & logs"
+msgstr "Fréquence du cron & logs"
+
+msgid "Check frequency"
+msgstr "Fréquence de vérification"
+
+msgid "How often the plugin checks for SMS to send. Should match your server cron. Changing this value automatically reschedules the WordPress cron on save."
+msgstr "À quelle fréquence le plugin vérifie s'il y a des SMS à envoyer. Doit correspondre à votre cron Plesk/serveur. Changer cette valeur replanifie automatiquement le cron WordPress à l'enregistrement."
+
+msgid "Keep logs for"
+msgstr "Conserver les logs pendant"
+
+msgid "days"
+msgstr "jours"
+
+msgid "Automatic purge runs every Monday at 3am. (7–365 days)"
+msgstr "La purge automatique s'exécute chaque lundi à 3h. (7–365 jours)"
+
+msgid "Save settings"
+msgstr "Enregistrer les réglages"
+
+msgid "System info"
+msgstr "Informations système"
+
+msgid "Plugin version"
+msgstr "Version du plugin"
+
+msgid "DLR webhook endpoint"
+msgstr "Endpoint DLR webhook"
+
+msgid "Table prefix"
+msgstr "Préfixe tables"
+
+msgid "Next send cron"
+msgstr "Prochain cron envoi"
+
+msgid "Not scheduled"
+msgstr "Non planifié"
+
+msgid "Next purge cron"
+msgstr "Prochain cron purge"
+
+msgid "Active slots"
+msgstr "Slots actifs"
+
+msgid "None"
+msgstr "Aucun"
+
+msgid "SMS %1$d · %2$s"
+msgstr "SMS %1$d · %2$s"
+
+msgid "Hide"
+msgstr "Masquer"
+
+msgid "Locked by wp-config.php"
+msgstr "Verrouillé par wp-config.php"
+
+msgid "Pending"
+msgstr "En attente"
+
+msgid "Delivered"
+msgstr "Délivré"
+
+msgid "Failed"
+msgstr "Échec"
+
+msgid "Skipped"
+msgstr "Ignoré"
+
+msgid "SMS Reminder — Reminder logs"
+msgstr "SMS Reminder — Logs des rappels"
+
+msgid "Cron executed manually."
+msgstr "Cron exécuté manuellement."
+
+msgid "See the logs below for results."
+msgstr "Consultez les logs ci-dessous pour voir les résultats."
+
+msgid "API key missing!"
+msgstr "Clé API manquante !"
+
+msgid "Set it in %1$s or via %2$s in wp-config.php."
+msgstr "Renseignez-la dans %1$s ou via %2$s dans wp-config.php."
+
+msgid "Settings → SMS Reminder"
+msgstr "Réglages → SMS Reminder"
+
+msgid "Sandbox mode is active."
+msgstr "Mode sandbox actif."
+
+msgid "SMS messages are not actually sent."
+msgstr "Les SMS ne sont pas réellement envoyés."
+
+msgid "Disable it in Settings"
+msgstr "Désactivez-le dans les Réglages"
+
+msgid "to switch to production."
+msgstr "pour passer en production."
+
+msgid "Configured"
+msgstr "Configurée"
+
+msgid "Sender:"
+msgstr "Expéditeur :"
+
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Missing"
+msgstr "Manquante"
+
+msgid "Configure"
+msgstr "Configurer"
+
+msgid "Mode"
+msgstr "Mode"
+
+msgid "Sandbox"
+msgstr "Sandbox"
+
+msgid "Production"
+msgstr "Production"
+
+msgid "Cron — sending"
+msgstr "Cron — envoi"
+
+msgid "Active"
+msgstr "Actif"
+
+msgid "Next:"
+msgstr "Prochain :"
+
+msgid "Inactive"
+msgstr "Inactif"
+
+msgid "Cron — purge"
+msgstr "Cron — purge"
+
+msgid "Total"
+msgstr "Total"
+
+msgid "Run SMS reminder processing now?"
+msgstr "Lancer le traitement des rappels SMS maintenant ?"
+
+msgid "Run cron now"
+msgstr "Lancer le cron maintenant"
+
+msgid "DLR endpoint:"
+msgstr "Endpoint DLR :"
+
+msgid "No logs yet. The cron will send the first reminders within the hour."
+msgstr "Aucun log pour l'instant. Le cron enverra les premiers rappels dans l'heure."
+
+msgid "Appointment date"
+msgstr "Date RDV"
+
+msgid "Reminder slot (SMS 1 = primary, SMS 2 = secondary)"
+msgstr "Slot de rappel (SMS 1 = principal, SMS 2 = complémentaire)"
+
+msgid "Slot"
+msgstr "Slot"
+
+msgid "Customer"
+msgstr "Client"
+
+msgid "Phone"
+msgstr "Téléphone"
+
+msgid "Service"
+msgstr "Service"
+
+msgid "Employee"
+msgstr "Employée"
+
+msgid "SMS status"
+msgstr "Statut SMS"
+
+msgid "Sent at"
+msgstr "Envoyé le"
+
+msgid "Delivered at"
+msgstr "Délivré le"
+
+msgid "Details"
+msgstr "Détails"
+
+msgid "ID:"
+msgstr "ID :"
+
+msgid "Page %1$d / %2$d (%3$d entries)"
+msgstr "Page %1$d / %2$d (%3$d entrées)"
+
+msgid "Logs are purged automatically after %1$d days. Detected table prefix: %2$s — %3$s"
+msgstr "Les logs sont purgés automatiquement après %1$d jours. Préfixe de table détecté : %2$s — %3$s"
+
+msgid "Edit settings"
+msgstr "Modifier les réglages"

@@ -3,7 +3,7 @@
  * Plugin Name: SMS Reminder for Amelia
  * Plugin URI:  https://capitainesite.com/
  * Description: Envoi automatique de SMS de rappel de rendez-vous pour Amelia Booking, via SMS Partner, en lisant directement les tables Amelia. D'autres passerelles SMS arriveront dans les prochaines versions.
- * Version:     1.1.0
+ * Version:     1.2.0
  * Author:      Capitaine Site — Agence experte WordPress
  * Author URI:  https://capitainesite.com/
  * License:     GPL-2.0-or-later
@@ -30,12 +30,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // ─── Constantes internes (non surchargeables) ────────────────────────────────
 
-define( 'SRFA_VERSION',    '1.1.0' );
+define( 'SRFA_VERSION',    '1.2.0' );
 define( 'SRFA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SRFA_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'SRFA_API_URL',    'https://api.smspartner.fr/v1/send' );
 define( 'SRFA_LOG_TABLE',  'srfa_logs' );    // sans préfixe $wpdb->prefix
 define( 'SRFA_OPTION_KEY', 'srfa_settings' );
+
+
+// ─── Chargement du text domain (i18n) ────────────────────────────────────────
+
+add_action( 'init', 'srfa_load_textdomain' );
+
+function srfa_load_textdomain() {
+    load_plugin_textdomain(
+        'sms-reminder-for-amelia',
+        false,
+        dirname( plugin_basename( __FILE__ ) ) . '/languages/'
+    );
+}
 
 
 // ─── Helper : lecture d'une option (define > BDD) ────────────────────────────
@@ -87,24 +100,24 @@ function srfa_get_option( $key, $default = null ) {
  */
 function srfa_reminder_offsets() {
     return [
-        10   => '10 minutes avant',
-        30   => '30 minutes avant',
-        60   => '1 heure avant',
-        120  => '2 heures avant',
-        240  => '4 heures avant',
-        480  => '8 heures avant',
-        720  => '12 heures avant',
-        1440 => '24 heures avant (la veille)',
-        2880 => '48 heures avant (2 jours)',
+        10   => __( '10 minutes before',              'sms-reminder-for-amelia' ),
+        30   => __( '30 minutes before',              'sms-reminder-for-amelia' ),
+        60   => __( '1 hour before',                  'sms-reminder-for-amelia' ),
+        120  => __( '2 hours before',                 'sms-reminder-for-amelia' ),
+        240  => __( '4 hours before',                 'sms-reminder-for-amelia' ),
+        480  => __( '8 hours before',                 'sms-reminder-for-amelia' ),
+        720  => __( '12 hours before',                'sms-reminder-for-amelia' ),
+        1440 => __( '24 hours before (the day prior)', 'sms-reminder-for-amelia' ),
+        2880 => __( '48 hours before (2 days)',       'sms-reminder-for-amelia' ),
     ];
 }
 
 function srfa_default_template_long() {
-    return "%location_name% : Bonjour %customer_full_name%, RDV demain à %appointment_start_time% avec %employee_first_name% pour %service_name%. Merci de prévenir si annulation.";
+    return __( '%location_name%: Hello %customer_full_name%, reminder of your appointment tomorrow at %appointment_start_time% with %employee_first_name% for %service_name%. Please let us know if you need to cancel.', 'sms-reminder-for-amelia' );
 }
 
 function srfa_default_template_short() {
-    return "%location_name% : Rappel, votre RDV est à %appointment_start_time% avec %employee_first_name%. À tout à l'heure !";
+    return __( '%location_name%: Reminder, your appointment is at %appointment_start_time% with %employee_first_name%. See you soon!', 'sms-reminder-for-amelia' );
 }
 
 /**
@@ -293,12 +306,12 @@ function srfa_maybe_migrate() {
  */
 function srfa_cron_frequencies() {
     return [
-        1  => 'Toutes les 1 minute',
-        5  => 'Toutes les 5 minutes',
-        10 => 'Toutes les 10 minutes',
-        15 => 'Toutes les 15 minutes',
-        30 => 'Toutes les 30 minutes',
-        60 => 'Toutes les heures',
+        1  => __( 'Every 1 minute',   'sms-reminder-for-amelia' ),
+        5  => __( 'Every 5 minutes',  'sms-reminder-for-amelia' ),
+        10 => __( 'Every 10 minutes', 'sms-reminder-for-amelia' ),
+        15 => __( 'Every 15 minutes', 'sms-reminder-for-amelia' ),
+        30 => __( 'Every 30 minutes', 'sms-reminder-for-amelia' ),
+        60 => __( 'Every hour',       'sms-reminder-for-amelia' ),
     ];
 }
 
@@ -594,19 +607,19 @@ function srfa_send_reminder( $appt, $slot_num, $slot_config ) {
 
 function srfa_api_error_label( $code ) {
     $labels = [
-        1  => 'Clé API manquante',
-        2  => 'Champ phoneNumbers manquant',
-        10 => 'Clé API incorrecte',
-        11 => 'Crédits insuffisants',
-        14 => 'Numéro en liste STOP SMS',
-        20 => 'Compte désactivé',
-        30 => 'Compte bloqué',
-        42 => 'SMS low-cost limité à 160 caractères',
-        50 => 'Maximum 500 numéros par requête dépassé',
-        90 => 'Syntaxe JSON malformée',
-        96 => 'Adresse IP non autorisée',
+        1  => __( 'Missing API key',                        'sms-reminder-for-amelia' ),
+        2  => __( 'Missing phoneNumbers field',             'sms-reminder-for-amelia' ),
+        10 => __( 'Invalid API key',                        'sms-reminder-for-amelia' ),
+        11 => __( 'Insufficient credits',                   'sms-reminder-for-amelia' ),
+        14 => __( 'Number on STOP SMS list',                'sms-reminder-for-amelia' ),
+        20 => __( 'Account disabled',                       'sms-reminder-for-amelia' ),
+        30 => __( 'Account blocked',                        'sms-reminder-for-amelia' ),
+        42 => __( 'Low-cost SMS limited to 160 characters', 'sms-reminder-for-amelia' ),
+        50 => __( 'Max 500 numbers per request exceeded',   'sms-reminder-for-amelia' ),
+        90 => __( 'Malformed JSON syntax',                  'sms-reminder-for-amelia' ),
+        96 => __( 'Unauthorized IP address',                'sms-reminder-for-amelia' ),
     ];
-    return isset( $labels[ $code ] ) ? $labels[ $code ] : 'Erreur inconnue';
+    return isset( $labels[ $code ] ) ? $labels[ $code ] : __( 'Unknown error', 'sms-reminder-for-amelia' );
 }
 
 
@@ -716,18 +729,16 @@ function srfa_purge_old_logs() {
 add_action( 'admin_menu', 'srfa_add_admin_menus' );
 
 function srfa_add_admin_menus() {
-    // Page Logs (Outils)
     add_management_page(
-        'SMS Reminder — Logs',
-        'SMS Reminder Logs',
+        __( 'SMS Reminder — Logs', 'sms-reminder-for-amelia' ),
+        __( 'SMS Reminder Logs',    'sms-reminder-for-amelia' ),
         'manage_options',
         'srfa-logs',
         'srfa_render_logs_page'
     );
-    // Page Réglages (Réglages)
     add_options_page(
-        'SMS Reminder — Réglages',
-        'SMS Reminder',
+        __( 'SMS Reminder — Settings', 'sms-reminder-for-amelia' ),
+        __( 'SMS Reminder',            'sms-reminder-for-amelia' ),
         'manage_options',
         'srfa-settings',
         'srfa_render_settings_page'
@@ -741,20 +752,25 @@ function srfa_render_branding_footer() {
     ?>
     <div style="margin-top:32px;padding:14px 18px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;color:#64748b;text-align:center;">
         SMS Reminder for Amelia — v<?php echo esc_html( SRFA_VERSION ); ?>
-        &middot; Développé par
-        <a href="https://capitainesite.com/" target="_blank" rel="noopener" style="color:#0ea5e9;text-decoration:none;font-weight:600;">Capitaine Site</a>,
-        agence experte WordPress.
+        &middot;
+        <?php
+        printf(
+            /* translators: %s: Agency name hyperlink. */
+            esc_html__( 'Developed by %s — WordPress agency.', 'sms-reminder-for-amelia' ),
+            '<a href="https://capitainesite.com/" target="_blank" rel="noopener" style="color:#0ea5e9;text-decoration:none;font-weight:600;">Capitaine Site</a>'
+        );
+        ?>
     </div>
     <?php
 }
 
 function srfa_render_logs_page() {
-    if ( ! current_user_can( 'manage_options' ) ) { wp_die( 'Accès refusé.' ); }
+    if ( ! current_user_can( 'manage_options' ) ) { wp_die( esc_html__( 'Access denied.', 'sms-reminder-for-amelia' ) ); }
     require_once SRFA_PLUGIN_DIR . 'admin-page.php';
 }
 
 function srfa_render_settings_page() {
-    if ( ! current_user_can( 'manage_options' ) ) { wp_die( 'Accès refusé.' ); }
+    if ( ! current_user_can( 'manage_options' ) ) { wp_die( esc_html__( 'Access denied.', 'sms-reminder-for-amelia' ) ); }
     require_once SRFA_PLUGIN_DIR . 'settings-page.php';
 }
 
@@ -852,7 +868,7 @@ function srfa_sanitize_settings( $input ) {
 add_action( 'admin_post_srfa_run_now', 'srfa_admin_run_now' );
 
 function srfa_admin_run_now() {
-    if ( ! current_user_can( 'manage_options' ) ) { wp_die( 'Accès refusé.' ); }
+    if ( ! current_user_can( 'manage_options' ) ) { wp_die( esc_html__( 'Access denied.', 'sms-reminder-for-amelia' ) ); }
     check_admin_referer( 'srfa_run_now' );
 
     srfa_process_reminders();
@@ -868,8 +884,8 @@ function srfa_admin_run_now() {
 // ─── Lien "Réglages" depuis la liste des plugins ──────────────────────────────
 
 add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), function ( $links ) {
-    $settings_link = '<a href="' . esc_url( admin_url( 'options-general.php?page=srfa-settings' ) ) . '">Réglages</a>';
-    $logs_link     = '<a href="' . esc_url( admin_url( 'tools.php?page=srfa-logs' ) ) . '">Logs</a>';
+    $settings_link = '<a href="' . esc_url( admin_url( 'options-general.php?page=srfa-settings' ) ) . '">' . esc_html__( 'Settings', 'sms-reminder-for-amelia' ) . '</a>';
+    $logs_link     = '<a href="' . esc_url( admin_url( 'tools.php?page=srfa-logs' ) ) . '">' . esc_html__( 'Logs', 'sms-reminder-for-amelia' ) . '</a>';
     array_unshift( $links, $settings_link, $logs_link );
     return $links;
 } );

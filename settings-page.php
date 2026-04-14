@@ -1,20 +1,13 @@
 <?php
 /**
- * Page Réglages → SMS Reminder (v1.1+ avec slots)
+ * Settings page: Settings → SMS Reminder (v1.1+ with slots)
  *
- * Inclus par srfa_render_settings_page() — WordPress chargé, utilisateur admin.
- *
- * Réglages disponibles :
- *   - Clé API SMS Partner, expéditeur, mode sandbox
- *   - 2 slots de rappel (SMS 1 obligatoire + SMS 2 optionnel) :
- *       timing (10min à 48h avant le RDV) + template personnalisé par slot
- *   - Fréquence du cron
- *   - Rétention des logs (jours)
+ * Included by srfa_render_settings_page() — WordPress already loaded, user is admin.
  */
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-// ── Récupération de l'option et statut de sauvegarde ─────────────────────────
+// ── Current option + save status ─────────────────────────────────────────────
 $saved    = isset( $_GET['settings-updated'] ) && $_GET['settings-updated'] === 'true';
 $options  = get_option( SRFA_OPTION_KEY, [] );
 
@@ -31,18 +24,18 @@ $locked_sbox   = srfa_is_locked( 'sandbox' );
 $slots   = srfa_get_slots();
 $offsets = srfa_reminder_offsets();
 
-// ── Aperçu du template (calcul côté serveur sur données fictives) ─────────────
+// ── Template preview (server-side, fake data) ────────────────────────────────
 $preview_vars = [
-    '%location_name%'          => 'Salon Paris',
-    '%customer_first_name%'    => 'Sophie',
-    '%customer_last_name%'     => 'Martin',
-    '%customer_full_name%'     => 'Sophie Martin',
-    '%employee_first_name%'    => 'Claire',
-    '%employee_last_name%'     => 'Dupont',
-    '%employee_full_name%'     => 'Claire Dupont',
-    '%service_name%'           => 'Soin du visage',
-    '%appointment_date%'       => 'lundi 14 avril',
-    '%appointment_start_time%' => '14h30',
+    '%location_name%'          => __( 'Paris Salon',    'sms-reminder-for-amelia' ),
+    '%customer_first_name%'    => __( 'Sophie',         'sms-reminder-for-amelia' ),
+    '%customer_last_name%'     => __( 'Martin',         'sms-reminder-for-amelia' ),
+    '%customer_full_name%'     => __( 'Sophie Martin',  'sms-reminder-for-amelia' ),
+    '%employee_first_name%'    => __( 'Claire',         'sms-reminder-for-amelia' ),
+    '%employee_last_name%'     => __( 'Dupont',         'sms-reminder-for-amelia' ),
+    '%employee_full_name%'     => __( 'Claire Dupont',  'sms-reminder-for-amelia' ),
+    '%service_name%'           => __( 'Facial care',    'sms-reminder-for-amelia' ),
+    '%appointment_date%'       => __( 'Monday April 14', 'sms-reminder-for-amelia' ),
+    '%appointment_start_time%' => '14:30',
 ];
 
 function srfa_render_slot_preview( $template, $vars, $slot_num ) {
@@ -52,16 +45,22 @@ function srfa_render_slot_preview( $template, $vars, $slot_num ) {
     ?>
     <div style="margin-top:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:12px;">
         <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">
-            Aperçu SMS <?php echo (int) $slot_num; ?> (données fictives)
+            <?php
+            printf(
+                /* translators: %d: slot number. */
+                esc_html__( 'SMS %d preview (sample data)', 'sms-reminder-for-amelia' ),
+                (int) $slot_num
+            );
+            ?>
         </div>
         <div id="srfa_preview_text_<?php echo (int) $slot_num; ?>"
              style="font-size:13px;color:#1e293b;line-height:1.5;word-break:break-word;">
             <?php echo esc_html( $msg ); ?>
         </div>
         <div style="margin-top:8px;font-size:12px;color:#64748b;">
-            <span id="srfa_preview_chars_<?php echo (int) $slot_num; ?>"><?php echo esc_html( $len ); ?></span> caractères
-            — <span id="srfa_preview_segs_<?php echo (int) $slot_num; ?>"><?php echo esc_html( $segs ); ?></span> segment(s) SMS
-            <span style="color:#94a3b8;">(160 car./segment)</span>
+            <span id="srfa_preview_chars_<?php echo (int) $slot_num; ?>"><?php echo esc_html( $len ); ?></span> <?php esc_html_e( 'characters', 'sms-reminder-for-amelia' ); ?>
+            — <span id="srfa_preview_segs_<?php echo (int) $slot_num; ?>"><?php echo esc_html( $segs ); ?></span> <?php esc_html_e( 'SMS segment(s)', 'sms-reminder-for-amelia' ); ?>
+            <span style="color:#94a3b8;"><?php esc_html_e( '(160 chars/segment)', 'sms-reminder-for-amelia' ); ?></span>
         </div>
     </div>
     <?php
@@ -71,32 +70,32 @@ function srfa_render_slot_preview( $template, $vars, $slot_num ) {
 <div class="wrap" style="max-width:920px;">
 
     <h1 style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-        <span style="font-size:26px;">⚙️</span> SMS Reminder — Réglages
+        <span style="font-size:26px;">⚙️</span> <?php esc_html_e( 'SMS Reminder — Settings', 'sms-reminder-for-amelia' ); ?>
     </h1>
     <p style="color:#64748b;margin-top:0;margin-bottom:24px;">
-        Configuration du plugin d'envoi de SMS de rappel de rendez-vous.
-        <a href="<?php echo esc_url( admin_url( 'tools.php?page=srfa-logs' ) ); ?>">← Voir les logs</a>
+        <?php esc_html_e( 'Configuration of the SMS appointment reminder plugin.', 'sms-reminder-for-amelia' ); ?>
+        <a href="<?php echo esc_url( admin_url( 'tools.php?page=srfa-logs' ) ); ?>">← <?php esc_html_e( 'View logs', 'sms-reminder-for-amelia' ); ?></a>
     </p>
 
     <?php if ( $saved ) : ?>
         <div class="notice notice-success is-dismissible" style="margin-bottom:20px;">
-            <p><strong>Réglages enregistrés.</strong></p>
+            <p><strong><?php esc_html_e( 'Settings saved.', 'sms-reminder-for-amelia' ); ?></strong></p>
         </div>
     <?php endif; ?>
 
     <form method="post" action="options.php">
         <?php settings_fields( 'srfa_settings_group' ); ?>
 
-        <!-- ══ Section 1 : API SMS Partner ══════════════════════════════════ -->
+        <!-- ══ Section 1: SMS Partner API ══════════════════════════════════ -->
         <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:24px;margin-bottom:20px;">
             <h2 style="margin-top:0;font-size:16px;display:flex;align-items:center;gap:8px;">
-                🔑 API SMS Partner
+                🔑 <?php esc_html_e( 'SMS Partner API', 'sms-reminder-for-amelia' ); ?>
             </h2>
 
             <table class="form-table" role="presentation">
                 <tr>
                     <th scope="row" style="width:220px;">
-                        <label for="srfa_api_key">Clé API</label>
+                        <label for="srfa_api_key"><?php esc_html_e( 'API key', 'sms-reminder-for-amelia' ); ?></label>
                     </th>
                     <td>
                         <?php if ( $locked_api ) : ?>
@@ -108,13 +107,13 @@ function srfa_render_slot_preview( $template, $vars, $slot_num ) {
                                    name="<?php echo esc_attr( SRFA_OPTION_KEY ); ?>[api_key]"
                                    value="<?php echo esc_attr( $options['api_key'] ?? '' ); ?>"
                                    class="regular-text" autocomplete="new-password"
-                                   placeholder="Votre clé API SMS Partner">
+                                   placeholder="<?php echo esc_attr__( 'Your SMS Partner API key', 'sms-reminder-for-amelia' ); ?>">
                             <button type="button" onclick="srfa_toggle_key(this)"
                                     style="margin-left:6px;cursor:pointer;background:none;border:1px solid #d1d5db;border-radius:4px;padding:4px 10px;font-size:12px;">
-                                Afficher
+                                <?php esc_html_e( 'Show', 'sms-reminder-for-amelia' ); ?>
                             </button>
                             <p class="description">
-                                Trouvez votre clé dans le dashboard SMS Partner → Paramètres → API.
+                                <?php esc_html_e( 'Find your key in SMS Partner dashboard → Settings → API.', 'sms-reminder-for-amelia' ); ?>
                             </p>
                         <?php endif; ?>
                     </td>
@@ -122,7 +121,7 @@ function srfa_render_slot_preview( $template, $vars, $slot_num ) {
 
                 <tr>
                     <th scope="row">
-                        <label for="srfa_sender">Expéditeur (sender)</label>
+                        <label for="srfa_sender"><?php esc_html_e( 'Sender', 'sms-reminder-for-amelia' ); ?></label>
                     </th>
                     <td>
                         <?php if ( $locked_sender ) : ?>
@@ -136,18 +135,17 @@ function srfa_render_slot_preview( $template, $vars, $slot_num ) {
                                    class="regular-text" maxlength="11"
                                    placeholder="Reminder">
                             <p class="description">
-                                3 à 11 caractères alphanumériques, sans espaces ni accents.
-                                Affiché à la place du numéro sur le téléphone du client.
+                                <?php esc_html_e( '3 to 11 alphanumeric characters, no spaces or accents. Displayed in place of the phone number on the recipient phone.', 'sms-reminder-for-amelia' ); ?>
                             </p>
                         <?php endif; ?>
                     </td>
                 </tr>
 
                 <tr>
-                    <th scope="row">Mode sandbox</th>
+                    <th scope="row"><?php esc_html_e( 'Sandbox mode', 'sms-reminder-for-amelia' ); ?></th>
                     <td>
                         <?php if ( $locked_sbox ) : ?>
-                            <span style="font-weight:600;"><?php echo $cur_sandbox ? '🧪 Actif (test)' : '🚀 Inactif (production)'; ?></span>
+                            <span style="font-weight:600;"><?php echo $cur_sandbox ? '🧪 ' . esc_html__( 'Active (test)', 'sms-reminder-for-amelia' ) : '🚀 ' . esc_html__( 'Inactive (production)', 'sms-reminder-for-amelia' ); ?></span>
                             <?php srfa_locked_badge(); ?>
                         <?php else : ?>
                             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
@@ -155,10 +153,10 @@ function srfa_render_slot_preview( $template, $vars, $slot_num ) {
                                        name="<?php echo esc_attr( SRFA_OPTION_KEY ); ?>[sandbox]"
                                        value="1"
                                        <?php checked( $options['sandbox'] ?? true ); ?>>
-                                <span>Activer le mode test (aucun SMS réellement envoyé, aucun crédit débité)</span>
+                                <span><?php esc_html_e( 'Enable test mode (no SMS actually sent, no credit used)', 'sms-reminder-for-amelia' ); ?></span>
                             </label>
                             <p class="description" style="margin-top:6px;">
-                                ⚠️ Désactivez cette option pour passer en production.
+                                ⚠️ <?php esc_html_e( 'Disable this to switch to production.', 'sms-reminder-for-amelia' ); ?>
                             </p>
                         <?php endif; ?>
                     </td>
@@ -166,25 +164,24 @@ function srfa_render_slot_preview( $template, $vars, $slot_num ) {
             </table>
         </div>
 
-        <!-- ══ Section 2 : Rappels SMS (slots) ══════════════════════════════ -->
+        <!-- ══ Section 2: Reminder slots ═══════════════════════════════════ -->
         <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:24px;margin-bottom:20px;">
-            <h2 style="margin-top:0;font-size:16px;">💬 Rappels SMS</h2>
+            <h2 style="margin-top:0;font-size:16px;">💬 <?php esc_html_e( 'SMS reminders', 'sms-reminder-for-amelia' ); ?></h2>
             <p style="color:#64748b;margin-top:0;margin-bottom:20px;font-size:13px;">
-                Configurez jusqu'à 2 rappels par rendez-vous. Le SMS 1 est obligatoire, le SMS 2 est optionnel.
-                Chaque slot a son propre timing et son propre message.
+                <?php esc_html_e( 'Configure up to 2 reminders per appointment. SMS 1 is mandatory, SMS 2 is optional. Each slot has its own timing and message.', 'sms-reminder-for-amelia' ); ?>
             </p>
 
             <?php
             $slot_configs = [
                 1 => [
-                    'title'      => 'SMS 1 (obligatoire)',
+                    'title'      => __( 'SMS 1 (required)', 'sms-reminder-for-amelia' ),
                     'icon'       => '📱',
                     'can_toggle' => false,
                     'bg'         => '#f0f9ff',
                     'border'     => '#7dd3fc',
                 ],
                 2 => [
-                    'title'      => 'SMS 2 (optionnel)',
+                    'title'      => __( 'SMS 2 (optional)', 'sms-reminder-for-amelia' ),
                     'icon'       => '📲',
                     'can_toggle' => true,
                     'bg'         => '#f8fafc',
@@ -210,13 +207,13 @@ function srfa_render_slot_preview( $template, $vars, $slot_num ) {
                                    value="1"
                                    <?php checked( $slot['enabled'] ); ?>
                                    onchange="srfa_toggle_slot(<?php echo (int) $n; ?>, this.checked)">
-                            <span>Activer ce rappel</span>
+                            <span><?php esc_html_e( 'Enable this reminder', 'sms-reminder-for-amelia' ); ?></span>
                         </label>
                     <?php else : ?>
                         <input type="hidden"
                                name="<?php echo esc_attr( SRFA_OPTION_KEY ); ?>[slots][<?php echo (int) $n; ?>][enabled]"
                                value="1">
-                        <span style="font-size:12px;color:#0369a1;background:#e0f2fe;padding:3px 10px;border-radius:12px;font-weight:600;">Toujours actif</span>
+                        <span style="font-size:12px;color:#0369a1;background:#e0f2fe;padding:3px 10px;border-radius:12px;font-weight:600;"><?php esc_html_e( 'Always active', 'sms-reminder-for-amelia' ); ?></span>
                     <?php endif; ?>
                 </div>
 
@@ -224,7 +221,7 @@ function srfa_render_slot_preview( $template, $vars, $slot_num ) {
                     <table class="form-table" role="presentation" style="margin-top:0;">
                         <tr>
                             <th scope="row" style="width:180px;padding-top:6px;padding-bottom:6px;">
-                                <label for="srfa_slot_<?php echo (int) $n; ?>_offset">Envoyer</label>
+                                <label for="srfa_slot_<?php echo (int) $n; ?>_offset"><?php esc_html_e( 'Send', 'sms-reminder-for-amelia' ); ?></label>
                             </th>
                             <td style="padding-top:6px;padding-bottom:6px;">
                                 <select id="srfa_slot_<?php echo (int) $n; ?>_offset"
@@ -239,14 +236,14 @@ function srfa_render_slot_preview( $template, $vars, $slot_num ) {
                                 </select>
                                 <?php if ( $n === 2 ) : ?>
                                     <p class="description" style="margin-top:6px;">
-                                        💡 Pour des rappels très courts (&lt; 1h), pensez à ajuster la fréquence du cron ci-dessous à 5 min ou moins.
+                                        💡 <?php esc_html_e( 'For very short reminders (< 1h), consider lowering the cron frequency below to 5 min or less.', 'sms-reminder-for-amelia' ); ?>
                                     </p>
                                 <?php endif; ?>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row" style="vertical-align:top;padding-top:10px;">
-                                <label for="srfa_slot_<?php echo (int) $n; ?>_template">Message</label>
+                                <label for="srfa_slot_<?php echo (int) $n; ?>_template"><?php esc_html_e( 'Message', 'sms-reminder-for-amelia' ); ?></label>
                             </th>
                             <td>
                                 <textarea id="srfa_slot_<?php echo (int) $n; ?>_template"
@@ -265,7 +262,7 @@ function srfa_render_slot_preview( $template, $vars, $slot_num ) {
             <?php endforeach; ?>
 
             <details style="margin-top:12px;font-size:13px;color:#64748b;">
-                <summary style="cursor:pointer;user-select:none;">📖 Variables disponibles dans les templates</summary>
+                <summary style="cursor:pointer;user-select:none;">📖 <?php esc_html_e( 'Available template variables', 'sms-reminder-for-amelia' ); ?></summary>
                 <div style="margin-top:10px;padding:12px;background:#f8fafc;border-radius:6px;">
                     <code>%location_name%</code>
                     <code>%customer_first_name%</code>
@@ -281,14 +278,14 @@ function srfa_render_slot_preview( $template, $vars, $slot_num ) {
             </details>
         </div>
 
-        <!-- ══ Section 3 : Fréquence & logs ═════════════════════════════════ -->
+        <!-- ══ Section 3: Cron frequency & logs ════════════════════════════ -->
         <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:24px;margin-bottom:20px;">
-            <h2 style="margin-top:0;font-size:16px;">🕐 Fréquence du cron & logs</h2>
+            <h2 style="margin-top:0;font-size:16px;">🕐 <?php esc_html_e( 'Cron frequency & logs', 'sms-reminder-for-amelia' ); ?></h2>
 
             <table class="form-table" role="presentation">
                 <tr>
                     <th scope="row" style="width:220px;">
-                        <label for="srfa_cron_freq">Fréquence de vérification</label>
+                        <label for="srfa_cron_freq"><?php esc_html_e( 'Check frequency', 'sms-reminder-for-amelia' ); ?></label>
                     </th>
                     <td>
                         <select id="srfa_cron_freq"
@@ -302,77 +299,78 @@ function srfa_render_slot_preview( $template, $vars, $slot_num ) {
                             <?php endforeach; ?>
                         </select>
                         <p class="description">
-                            À quelle fréquence le plugin vérifie s'il y a des SMS à envoyer. Doit correspondre à votre cron Plesk/serveur.
-                            <br>⚠️ Changer cette valeur replanifie automatiquement le cron WordPress à l'enregistrement.
+                            <?php esc_html_e( 'How often the plugin checks for SMS to send. Should match your server cron. Changing this value automatically reschedules the WordPress cron on save.', 'sms-reminder-for-amelia' ); ?>
                         </p>
                     </td>
                 </tr>
                 <tr>
                     <th scope="row">
-                        <label for="srfa_purge">Conserver les logs pendant</label>
+                        <label for="srfa_purge"><?php esc_html_e( 'Keep logs for', 'sms-reminder-for-amelia' ); ?></label>
                     </th>
                     <td>
                         <input type="number" id="srfa_purge"
                                name="<?php echo esc_attr( SRFA_OPTION_KEY ); ?>[purge_days]"
                                value="<?php echo esc_attr( $options['purge_days'] ?? $cur_purge ); ?>"
                                min="7" max="365" step="1" style="width:80px;">
-                        <span style="margin-left:6px;color:#64748b;">jours</span>
-                        <p class="description">La purge automatique s'exécute chaque lundi à 3h. (7–365 jours)</p>
+                        <span style="margin-left:6px;color:#64748b;"><?php esc_html_e( 'days', 'sms-reminder-for-amelia' ); ?></span>
+                        <p class="description"><?php esc_html_e( 'Automatic purge runs every Monday at 3am. (7–365 days)', 'sms-reminder-for-amelia' ); ?></p>
                     </td>
                 </tr>
             </table>
         </div>
 
-        <?php submit_button( 'Enregistrer les réglages', 'primary large' ); ?>
+        <?php submit_button( __( 'Save settings', 'sms-reminder-for-amelia' ), 'primary large' ); ?>
     </form>
 
-    <!-- ── Informations système ─────────────────────────────────────────── -->
+    <!-- ── System info ─────────────────────────────────────────────────── -->
     <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-top:24px;">
         <h3 style="margin-top:0;font-size:13px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;">
-            Informations système
+            <?php esc_html_e( 'System info', 'sms-reminder-for-amelia' ); ?>
         </h3>
         <table style="font-size:12px;color:#475569;border-collapse:collapse;width:100%;">
             <tr>
-                <td style="padding:3px 0;width:220px;color:#94a3b8;">Version du plugin</td>
+                <td style="padding:3px 0;width:220px;color:#94a3b8;"><?php esc_html_e( 'Plugin version', 'sms-reminder-for-amelia' ); ?></td>
                 <td><?php echo esc_html( SRFA_VERSION ); ?></td>
             </tr>
             <tr>
-                <td style="padding:3px 0;color:#94a3b8;">Endpoint DLR webhook</td>
+                <td style="padding:3px 0;color:#94a3b8;"><?php esc_html_e( 'DLR webhook endpoint', 'sms-reminder-for-amelia' ); ?></td>
                 <td><code style="font-size:11px;"><?php echo esc_html( rest_url( 'srfa/v1/sms-delivery' ) ); ?></code></td>
             </tr>
             <tr>
-                <td style="padding:3px 0;color:#94a3b8;">Préfixe tables</td>
+                <td style="padding:3px 0;color:#94a3b8;"><?php esc_html_e( 'Table prefix', 'sms-reminder-for-amelia' ); ?></td>
                 <td><code><?php global $wpdb; echo esc_html( $wpdb->prefix ); ?></code></td>
             </tr>
             <tr>
-                <td style="padding:3px 0;color:#94a3b8;">Prochain cron envoi</td>
+                <td style="padding:3px 0;color:#94a3b8;"><?php esc_html_e( 'Next send cron', 'sms-reminder-for-amelia' ); ?></td>
                 <td>
                     <?php
                     $next = wp_next_scheduled( 'srfa_hourly_send' );
-                    echo $next ? esc_html( wp_date( 'd/m/Y à H:i:s', $next ) ) : '<span style="color:#dc2626;">Non planifié</span>';
+                    echo $next ? esc_html( wp_date( 'd/m/Y H:i:s', $next ) ) : '<span style="color:#dc2626;">' . esc_html__( 'Not scheduled', 'sms-reminder-for-amelia' ) . '</span>';
                     ?>
                 </td>
             </tr>
             <tr>
-                <td style="padding:3px 0;color:#94a3b8;">Prochain cron purge</td>
+                <td style="padding:3px 0;color:#94a3b8;"><?php esc_html_e( 'Next purge cron', 'sms-reminder-for-amelia' ); ?></td>
                 <td>
                     <?php
                     $next_p = wp_next_scheduled( 'srfa_weekly_purge' );
-                    echo $next_p ? esc_html( wp_date( 'd/m/Y à H:i:s', $next_p ) ) : '<span style="color:#dc2626;">Non planifié</span>';
+                    echo $next_p ? esc_html( wp_date( 'd/m/Y H:i:s', $next_p ) ) : '<span style="color:#dc2626;">' . esc_html__( 'Not scheduled', 'sms-reminder-for-amelia' ) . '</span>';
                     ?>
                 </td>
             </tr>
             <tr>
-                <td style="padding:3px 0;color:#94a3b8;">Slots actifs</td>
+                <td style="padding:3px 0;color:#94a3b8;"><?php esc_html_e( 'Active slots', 'sms-reminder-for-amelia' ); ?></td>
                 <td>
                     <?php
                     $active = array_keys( srfa_get_active_slots() );
                     if ( empty( $active ) ) {
-                        echo '<span style="color:#dc2626;">Aucun</span>';
+                        echo '<span style="color:#dc2626;">' . esc_html__( 'None', 'sms-reminder-for-amelia' ) . '</span>';
                     } else {
                         foreach ( $active as $n ) {
                             $offset_label = $offsets[ $slots[ $n ]['offset_minutes'] ] ?? '?';
-                            echo '<span style="display:inline-block;margin-right:8px;padding:2px 8px;background:#dbeafe;color:#1e40af;border-radius:10px;font-weight:600;">SMS ' . (int) $n . ' · ' . esc_html( $offset_label ) . '</span>';
+                            /* translators: 1: slot number, 2: offset label (e.g. "1 hour before"). */
+                            $tag = sprintf( __( 'SMS %1$d · %2$s', 'sms-reminder-for-amelia' ), (int) $n, $offset_label );
+                            echo '<span style="display:inline-block;margin-right:8px;padding:2px 8px;background:#dbeafe;color:#1e40af;border-radius:10px;font-weight:600;">' . esc_html( $tag ) . '</span>';
                         }
                     }
                     ?>
@@ -386,20 +384,20 @@ function srfa_render_slot_preview( $template, $vars, $slot_num ) {
 </div><!-- .wrap -->
 
 <script>
-// ── Afficher/masquer la clé API ───────────────────────────────────────────────
+// ── Toggle API key visibility ────────────────────────────────────────────────
 function srfa_toggle_key(btn) {
     var input = document.getElementById('srfa_api_key');
     if (!input) return;
     if (input.type === 'password') {
         input.type = 'text';
-        btn.textContent = 'Masquer';
+        btn.textContent = <?php echo wp_json_encode( __( 'Hide', 'sms-reminder-for-amelia' ) ); ?>;
     } else {
         input.type = 'password';
-        btn.textContent = 'Afficher';
+        btn.textContent = <?php echo wp_json_encode( __( 'Show', 'sms-reminder-for-amelia' ) ); ?>;
     }
 }
 
-// ── Activer/désactiver visuellement un slot ───────────────────────────────────
+// ── Visually toggle a slot ───────────────────────────────────────────────────
 function srfa_toggle_slot(n, enabled) {
     var body = document.getElementById('srfa_slot_' + n + '_body');
     if (!body) return;
@@ -412,19 +410,8 @@ function srfa_toggle_slot(n, enabled) {
     }
 }
 
-// ── Aperçu live du template (par slot) ────────────────────────────────────────
-var srfa_vars = {
-    '%location_name%'          : 'Salon Paris',
-    '%customer_first_name%'    : 'Sophie',
-    '%customer_last_name%'     : 'Martin',
-    '%customer_full_name%'     : 'Sophie Martin',
-    '%employee_first_name%'    : 'Claire',
-    '%employee_last_name%'     : 'Dupont',
-    '%employee_full_name%'     : 'Claire Dupont',
-    '%service_name%'           : 'Soin du visage',
-    '%appointment_date%'       : 'lundi 14 avril',
-    '%appointment_start_time%' : '14h30'
-};
+// ── Live template preview (per slot) ─────────────────────────────────────────
+var srfa_vars = <?php echo wp_json_encode( $preview_vars ); ?>;
 
 function srfa_update_preview(n, tpl) {
     var msg = tpl;
@@ -449,10 +436,10 @@ function srfa_update_preview(n, tpl) {
 </script>
 
 <?php
-// ── Helper : badge "Verrouillé par wp-config.php" ────────────────────────────
+// ── Helper: "Locked by wp-config.php" badge ──────────────────────────────────
 function srfa_locked_badge() {
     echo '<span style="display:inline-flex;align-items:center;gap:4px;margin-left:8px;padding:2px 10px;'
        . 'border-radius:12px;font-size:11px;font-weight:600;color:#92400e;'
        . 'background:#fef3c7;border:1px solid #f59e0b;">'
-       . '🔒 Verrouillé par wp-config.php</span>';
+       . '🔒 ' . esc_html__( 'Locked by wp-config.php', 'sms-reminder-for-amelia' ) . '</span>';
 }

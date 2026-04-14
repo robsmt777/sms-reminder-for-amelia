@@ -19,6 +19,7 @@ Développé par **[Capitaine Site](https://capitainesite.com/)** — Agence expe
 - 📥 **Webhook DLR** pour remonter les accusés de réception SMS Partner
 - 🔐 Support des `define()` dans `wp-config.php` pour déploiements multi-serveurs
 - 🧹 Purge hebdomadaire automatique des anciens logs
+- 🌍 **Traduction-ready** (i18n complet) — anglais par défaut, français fourni, toute autre langue ajoutable via Loco Translate / Poedit / WPML / Polylang / TranslatePress
 
 ---
 
@@ -96,6 +97,15 @@ https://votre-site.fr/wp-json/srfa/v1/sms-delivery
 
 ---
 
+## 🌍 Traductions
+
+Le plugin est entièrement prêt pour l'i18n. Les fichiers fournis :
+
+- `languages/sms-reminder-for-amelia.pot` — template de traduction (source anglaise)
+- `languages/sms-reminder-for-amelia-fr_FR.po` / `.mo` — traduction française
+
+Pour contribuer une traduction dans une autre langue : utilisez **[Poedit](https://poedit.net/)**, **[Loco Translate](https://wordpress.org/plugins/loco-translate/)** ou envoyez-nous une PR avec votre `.po` (la compilation `.mo` est automatique).
+
 ## 🗺️ Roadmap
 
 - [ ] Passerelle **OVH SMS**
@@ -103,7 +113,7 @@ https://votre-site.fr/wp-json/srfa/v1/sms-delivery
 - [ ] Architecture d'extension (gateways enregistrables)
 - [ ] Publication sur WordPress.org (version gratuite)
 - [ ] Notifications email en cas d'échec critique
-- [ ] Templates multilingues
+- [ ] Plus de langues (es, de, it, pt via WP.org)
 
 ---
 

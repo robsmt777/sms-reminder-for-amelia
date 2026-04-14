@@ -1,0 +1,443 @@
+# Copyright (C) 2026 Capitaine Site
+# This file is distributed under the GPL-2.0-or-later license.
+msgid ""
+msgstr ""
+"Project-Id-Version: SMS Reminder for Amelia 1.2.0\n"
+"Report-Msgid-Bugs-To: https://github.com/robsmt777/sms-reminder-for-amelia/issues\n"
+"POT-Creation-Date: 2026-04-14 00:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: sms-reminder-for-amelia\n"
+
+msgid "10 minutes before"
+msgstr ""
+
+msgid "30 minutes before"
+msgstr ""
+
+msgid "1 hour before"
+msgstr ""
+
+msgid "2 hours before"
+msgstr ""
+
+msgid "4 hours before"
+msgstr ""
+
+msgid "8 hours before"
+msgstr ""
+
+msgid "12 hours before"
+msgstr ""
+
+msgid "24 hours before (the day prior)"
+msgstr ""
+
+msgid "48 hours before (2 days)"
+msgstr ""
+
+msgid "%location_name%: Hello %customer_full_name%, reminder of your appointment tomorrow at %appointment_start_time% with %employee_first_name% for %service_name%. Please let us know if you need to cancel."
+msgstr ""
+
+msgid "%location_name%: Reminder, your appointment is at %appointment_start_time% with %employee_first_name%. See you soon!"
+msgstr ""
+
+msgid "Every 1 minute"
+msgstr ""
+
+msgid "Every 5 minutes"
+msgstr ""
+
+msgid "Every 10 minutes"
+msgstr ""
+
+msgid "Every 15 minutes"
+msgstr ""
+
+msgid "Every 30 minutes"
+msgstr ""
+
+msgid "Every hour"
+msgstr ""
+
+msgid "Missing API key"
+msgstr ""
+
+msgid "Missing phoneNumbers field"
+msgstr ""
+
+msgid "Invalid API key"
+msgstr ""
+
+msgid "Insufficient credits"
+msgstr ""
+
+msgid "Number on STOP SMS list"
+msgstr ""
+
+msgid "Account disabled"
+msgstr ""
+
+msgid "Account blocked"
+msgstr ""
+
+msgid "Low-cost SMS limited to 160 characters"
+msgstr ""
+
+msgid "Max 500 numbers per request exceeded"
+msgstr ""
+
+msgid "Malformed JSON syntax"
+msgstr ""
+
+msgid "Unauthorized IP address"
+msgstr ""
+
+msgid "Unknown error"
+msgstr ""
+
+msgid "SMS Reminder — Logs"
+msgstr ""
+
+msgid "SMS Reminder Logs"
+msgstr ""
+
+msgid "SMS Reminder — Settings"
+msgstr ""
+
+msgid "SMS Reminder"
+msgstr ""
+
+#. translators: %s: Agency name hyperlink.
+msgid "Developed by %s — WordPress agency."
+msgstr ""
+
+msgid "Access denied."
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Logs"
+msgstr ""
+
+msgid "Paris Salon"
+msgstr ""
+
+msgid "Sophie"
+msgstr ""
+
+msgid "Martin"
+msgstr ""
+
+msgid "Sophie Martin"
+msgstr ""
+
+msgid "Claire"
+msgstr ""
+
+msgid "Dupont"
+msgstr ""
+
+msgid "Claire Dupont"
+msgstr ""
+
+msgid "Facial care"
+msgstr ""
+
+msgid "Monday April 14"
+msgstr ""
+
+#. translators: %d: slot number.
+msgid "SMS %d preview (sample data)"
+msgstr ""
+
+msgid "characters"
+msgstr ""
+
+msgid "SMS segment(s)"
+msgstr ""
+
+msgid "(160 chars/segment)"
+msgstr ""
+
+msgid "Configuration of the SMS appointment reminder plugin."
+msgstr ""
+
+msgid "View logs"
+msgstr ""
+
+msgid "Settings saved."
+msgstr ""
+
+msgid "SMS Partner API"
+msgstr ""
+
+msgid "API key"
+msgstr ""
+
+msgid "Your SMS Partner API key"
+msgstr ""
+
+msgid "Show"
+msgstr ""
+
+msgid "Find your key in SMS Partner dashboard → Settings → API."
+msgstr ""
+
+msgid "Sender"
+msgstr ""
+
+msgid "3 to 11 alphanumeric characters, no spaces or accents. Displayed in place of the phone number on the recipient phone."
+msgstr ""
+
+msgid "Sandbox mode"
+msgstr ""
+
+msgid "Active (test)"
+msgstr ""
+
+msgid "Inactive (production)"
+msgstr ""
+
+msgid "Enable test mode (no SMS actually sent, no credit used)"
+msgstr ""
+
+msgid "Disable this to switch to production."
+msgstr ""
+
+msgid "SMS reminders"
+msgstr ""
+
+msgid "Configure up to 2 reminders per appointment. SMS 1 is mandatory, SMS 2 is optional. Each slot has its own timing and message."
+msgstr ""
+
+msgid "SMS 1 (required)"
+msgstr ""
+
+msgid "SMS 2 (optional)"
+msgstr ""
+
+msgid "Enable this reminder"
+msgstr ""
+
+msgid "Always active"
+msgstr ""
+
+msgid "Send"
+msgstr ""
+
+msgid "For very short reminders (< 1h), consider lowering the cron frequency below to 5 min or less."
+msgstr ""
+
+msgid "Message"
+msgstr ""
+
+msgid "Available template variables"
+msgstr ""
+
+msgid "Cron frequency & logs"
+msgstr ""
+
+msgid "Check frequency"
+msgstr ""
+
+msgid "How often the plugin checks for SMS to send. Should match your server cron. Changing this value automatically reschedules the WordPress cron on save."
+msgstr ""
+
+msgid "Keep logs for"
+msgstr ""
+
+msgid "days"
+msgstr ""
+
+msgid "Automatic purge runs every Monday at 3am. (7–365 days)"
+msgstr ""
+
+msgid "Save settings"
+msgstr ""
+
+msgid "System info"
+msgstr ""
+
+msgid "Plugin version"
+msgstr ""
+
+msgid "DLR webhook endpoint"
+msgstr ""
+
+msgid "Table prefix"
+msgstr ""
+
+msgid "Next send cron"
+msgstr ""
+
+msgid "Not scheduled"
+msgstr ""
+
+msgid "Next purge cron"
+msgstr ""
+
+msgid "Active slots"
+msgstr ""
+
+msgid "None"
+msgstr ""
+
+#. translators: 1: slot number, 2: offset label (e.g. "1 hour before").
+msgid "SMS %1$d · %2$s"
+msgstr ""
+
+msgid "Hide"
+msgstr ""
+
+msgid "Locked by wp-config.php"
+msgstr ""
+
+msgid "Pending"
+msgstr ""
+
+msgid "Delivered"
+msgstr ""
+
+msgid "Failed"
+msgstr ""
+
+msgid "Skipped"
+msgstr ""
+
+msgid "SMS Reminder — Reminder logs"
+msgstr ""
+
+msgid "Cron executed manually."
+msgstr ""
+
+msgid "See the logs below for results."
+msgstr ""
+
+msgid "API key missing!"
+msgstr ""
+
+#. translators: 1: Settings page hyperlink, 2: wp-config define snippet.
+msgid "Set it in %1$s or via %2$s in wp-config.php."
+msgstr ""
+
+msgid "Settings → SMS Reminder"
+msgstr ""
+
+msgid "Sandbox mode is active."
+msgstr ""
+
+msgid "SMS messages are not actually sent."
+msgstr ""
+
+msgid "Disable it in Settings"
+msgstr ""
+
+msgid "to switch to production."
+msgstr ""
+
+msgid "Configured"
+msgstr ""
+
+msgid "Sender:"
+msgstr ""
+
+msgid "Dashboard"
+msgstr ""
+
+msgid "Missing"
+msgstr ""
+
+msgid "Configure"
+msgstr ""
+
+msgid "Mode"
+msgstr ""
+
+msgid "Sandbox"
+msgstr ""
+
+msgid "Production"
+msgstr ""
+
+msgid "Cron — sending"
+msgstr ""
+
+msgid "Active"
+msgstr ""
+
+msgid "Next:"
+msgstr ""
+
+msgid "Inactive"
+msgstr ""
+
+msgid "Cron — purge"
+msgstr ""
+
+msgid "Total"
+msgstr ""
+
+msgid "Run SMS reminder processing now?"
+msgstr ""
+
+msgid "Run cron now"
+msgstr ""
+
+msgid "DLR endpoint:"
+msgstr ""
+
+msgid "No logs yet. The cron will send the first reminders within the hour."
+msgstr ""
+
+msgid "Appointment date"
+msgstr ""
+
+msgid "Reminder slot (SMS 1 = primary, SMS 2 = secondary)"
+msgstr ""
+
+msgid "Slot"
+msgstr ""
+
+msgid "Customer"
+msgstr ""
+
+msgid "Phone"
+msgstr ""
+
+msgid "Service"
+msgstr ""
+
+msgid "Employee"
+msgstr ""
+
+msgid "SMS status"
+msgstr ""
+
+msgid "Sent at"
+msgstr ""
+
+msgid "Delivered at"
+msgstr ""
+
+msgid "Details"
+msgstr ""
+
+msgid "ID:"
+msgstr ""
+
+#. translators: 1: current page, 2: total pages, 3: total entries.
+msgid "Page %1$d / %2$d (%3$d entries)"
+msgstr ""
+
+#. translators: 1: retention days, 2: table prefix code, 3: settings link.
+msgid "Logs are purged automatically after %1$d days. Detected table prefix: %2$s — %3$s"
+msgstr ""
+
+msgid "Edit settings"
+msgstr ""

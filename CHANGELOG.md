@@ -5,6 +5,22 @@ Format : [version] — date · description
 
 ---
 
+## [1.2.0] — 2026-04-14
+
+### Ajouté
+- **Internationalisation complète** : toutes les chaînes utilisateur sont désormais wrappées dans les helpers i18n WordPress (`__()`, `esc_html__()`, etc.) avec le text-domain `sms-reminder-for-amelia`.
+- **Langue source passée à l'anglais** (convention WordPress.org).
+- **Traduction française complète** (`fr_FR.po` + `fr_FR.mo`) fournie dans `/languages/` — aucun changement visible pour les utilisateurs francophones, le français reste la langue affichée.
+- **Fichier `.pot` de référence** (`languages/sms-reminder-for-amelia.pot`) pour que n'importe quel traducteur puisse créer sa propre locale (Loco Translate, Poedit, WPML, etc.).
+- Hook `load_plugin_textdomain()` au démarrage pour charger les traductions depuis `/languages/`.
+- Le plugin est désormais compatible avec les systèmes de traduction automatique WordPress, [translate.wordpress.org](https://translate.wordpress.org/), Loco Translate, WPML, Polylang, TranslatePress.
+
+### Technique
+- ~140 chaînes uniques extraites et traduites.
+- Les `error_log()` internes (côté développeur) restent non traduits, comme le veut la convention WP.
+
+---
+
 ## [1.1.0] — 2026-04-14
 
 ### Ajouté
