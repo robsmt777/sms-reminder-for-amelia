@@ -2,9 +2,9 @@
 # This file is distributed under the GPL-2.0-or-later license.
 msgid ""
 msgstr ""
-"Project-Id-Version: SMS Reminder for Amelia 1.2.0\n"
+"Project-Id-Version: SMS Reminder for Amelia 1.3.0\n"
 "Report-Msgid-Bugs-To: https://github.com/robsmt777/sms-reminder-for-amelia/issues\n"
-"POT-Creation-Date: 2026-04-14 00:00+0000\n"
+"POT-Creation-Date: 2026-04-15 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -13,431 +13,709 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Domain: sms-reminder-for-amelia\n"
 
+#: sms-reminder-for-amelia.php:136
 msgid "10 minutes before"
 msgstr ""
 
+#: sms-reminder-for-amelia.php:137
 msgid "30 minutes before"
 msgstr ""
 
+#: sms-reminder-for-amelia.php:138
 msgid "1 hour before"
 msgstr ""
 
+#: sms-reminder-for-amelia.php:139
 msgid "2 hours before"
 msgstr ""
 
+#: sms-reminder-for-amelia.php:140
 msgid "4 hours before"
 msgstr ""
 
+#: sms-reminder-for-amelia.php:141
 msgid "8 hours before"
 msgstr ""
 
+#: sms-reminder-for-amelia.php:142
 msgid "12 hours before"
 msgstr ""
 
+#: sms-reminder-for-amelia.php:143
 msgid "24 hours before (the day prior)"
 msgstr ""
 
+#: sms-reminder-for-amelia.php:144
 msgid "48 hours before (2 days)"
 msgstr ""
 
+#: sms-reminder-for-amelia.php:149
 msgid "%location_name%: Hello %customer_full_name%, reminder of your appointment tomorrow at %appointment_start_time% with %employee_first_name% for %service_name%. Please let us know if you need to cancel."
 msgstr ""
 
+#: sms-reminder-for-amelia.php:153
 msgid "%location_name%: Reminder, your appointment is at %appointment_start_time% with %employee_first_name%. See you soon!"
 msgstr ""
 
+#: sms-reminder-for-amelia.php:373
 msgid "Every 1 minute"
 msgstr ""
 
+#: sms-reminder-for-amelia.php:374
 msgid "Every 5 minutes"
 msgstr ""
 
+#: sms-reminder-for-amelia.php:375
 msgid "Every 10 minutes"
 msgstr ""
 
+#: sms-reminder-for-amelia.php:376
 msgid "Every 15 minutes"
 msgstr ""
 
+#: sms-reminder-for-amelia.php:377
 msgid "Every 30 minutes"
 msgstr ""
 
+#: sms-reminder-for-amelia.php:378
 msgid "Every hour"
 msgstr ""
 
-msgid "Missing API key"
-msgstr ""
-
-msgid "Missing phoneNumbers field"
-msgstr ""
-
-msgid "Invalid API key"
-msgstr ""
-
-msgid "Insufficient credits"
-msgstr ""
-
-msgid "Number on STOP SMS list"
-msgstr ""
-
-msgid "Account disabled"
-msgstr ""
-
-msgid "Account blocked"
-msgstr ""
-
-msgid "Low-cost SMS limited to 160 characters"
-msgstr ""
-
-msgid "Max 500 numbers per request exceeded"
-msgstr ""
-
-msgid "Malformed JSON syntax"
-msgstr ""
-
-msgid "Unauthorized IP address"
-msgstr ""
-
-msgid "Unknown error"
-msgstr ""
-
+#: sms-reminder-for-amelia.php:764
 msgid "SMS Reminder — Logs"
 msgstr ""
 
+#: sms-reminder-for-amelia.php:765
 msgid "SMS Reminder Logs"
 msgstr ""
 
+#: sms-reminder-for-amelia.php:771
+#: settings-page.php:71
 msgid "SMS Reminder — Settings"
 msgstr ""
 
+#: sms-reminder-for-amelia.php:772
 msgid "SMS Reminder"
 msgstr ""
 
-#. translators: %s: Agency name hyperlink.
+#: sms-reminder-for-amelia.php:790
 msgid "Developed by %s — WordPress agency."
 msgstr ""
 
+#: sms-reminder-for-amelia.php:799
+#: sms-reminder-for-amelia.php:804
+#: sms-reminder-for-amelia.php:917
 msgid "Access denied."
 msgstr ""
 
+#: sms-reminder-for-amelia.php:933
+#: admin-page.php:95
 msgid "Settings"
 msgstr ""
 
+#: sms-reminder-for-amelia.php:934
 msgid "Logs"
 msgstr ""
 
+#: settings-page.php:27
 msgid "Paris Salon"
 msgstr ""
 
+#: settings-page.php:28
 msgid "Sophie"
 msgstr ""
 
+#: settings-page.php:29
 msgid "Martin"
 msgstr ""
 
+#: settings-page.php:30
 msgid "Sophie Martin"
 msgstr ""
 
+#: settings-page.php:31
 msgid "Claire"
 msgstr ""
 
+#: settings-page.php:32
 msgid "Dupont"
 msgstr ""
 
+#: settings-page.php:33
 msgid "Claire Dupont"
 msgstr ""
 
+#: settings-page.php:34
 msgid "Facial care"
 msgstr ""
 
+#: settings-page.php:35
 msgid "Monday April 14"
 msgstr ""
 
-#. translators: %d: slot number.
+#: settings-page.php:49
 msgid "SMS %d preview (sample data)"
 msgstr ""
 
+#: settings-page.php:59
 msgid "characters"
 msgstr ""
 
+#: settings-page.php:60
 msgid "SMS segment(s)"
 msgstr ""
 
+#: settings-page.php:61
 msgid "(160 chars/segment)"
 msgstr ""
 
+#: settings-page.php:74
 msgid "Configuration of the SMS appointment reminder plugin."
 msgstr ""
 
+#: settings-page.php:75
 msgid "View logs"
 msgstr ""
 
+#: settings-page.php:80
 msgid "Settings saved."
 msgstr ""
 
-msgid "SMS Partner API"
+#: settings-page.php:90
+msgid "SMS gateway"
 msgstr ""
 
-msgid "API key"
+#: settings-page.php:93
+msgid "Choose which SMS provider to use. Each gateway has its own configuration fields below."
 msgstr ""
 
-msgid "Your SMS Partner API key"
+#: settings-page.php:99
+#: admin-page.php:133
+msgid "Active gateway"
 msgstr ""
 
-msgid "Show"
+#: settings-page.php:134
+msgid "Configuration"
 msgstr ""
 
-msgid "Find your key in SMS Partner dashboard → Settings → API."
-msgstr ""
-
-msgid "Sender"
-msgstr ""
-
-msgid "3 to 11 alphanumeric characters, no spaces or accents. Displayed in place of the phone number on the recipient phone."
-msgstr ""
-
-msgid "Sandbox mode"
-msgstr ""
-
-msgid "Active (test)"
-msgstr ""
-
-msgid "Inactive (production)"
-msgstr ""
-
-msgid "Enable test mode (no SMS actually sent, no credit used)"
-msgstr ""
-
-msgid "Disable this to switch to production."
-msgstr ""
-
-msgid "SMS reminders"
-msgstr ""
-
-msgid "Configure up to 2 reminders per appointment. SMS 1 is mandatory, SMS 2 is optional. Each slot has its own timing and message."
-msgstr ""
-
-msgid "SMS 1 (required)"
-msgstr ""
-
-msgid "SMS 2 (optional)"
-msgstr ""
-
-msgid "Enable this reminder"
-msgstr ""
-
-msgid "Always active"
-msgstr ""
-
-msgid "Send"
-msgstr ""
-
-msgid "For very short reminders (< 1h), consider lowering the cron frequency below to 5 min or less."
-msgstr ""
-
-msgid "Message"
-msgstr ""
-
-msgid "Available template variables"
-msgstr ""
-
-msgid "Cron frequency & logs"
-msgstr ""
-
-msgid "Check frequency"
-msgstr ""
-
-msgid "How often the plugin checks for SMS to send. Should match your server cron. Changing this value automatically reschedules the WordPress cron on save."
-msgstr ""
-
-msgid "Keep logs for"
-msgstr ""
-
-msgid "days"
-msgstr ""
-
-msgid "Automatic purge runs every Monday at 3am. (7–365 days)"
-msgstr ""
-
-msgid "Save settings"
-msgstr ""
-
-msgid "System info"
-msgstr ""
-
-msgid "Plugin version"
-msgstr ""
-
-msgid "DLR webhook endpoint"
-msgstr ""
-
-msgid "Table prefix"
-msgstr ""
-
-msgid "Next send cron"
-msgstr ""
-
-msgid "Not scheduled"
-msgstr ""
-
-msgid "Next purge cron"
-msgstr ""
-
-msgid "Active slots"
-msgstr ""
-
-msgid "None"
-msgstr ""
-
-#. translators: 1: slot number, 2: offset label (e.g. "1 hour before").
-msgid "SMS %1$d · %2$s"
-msgstr ""
-
-msgid "Hide"
-msgstr ""
-
-msgid "Locked by wp-config.php"
-msgstr ""
-
-msgid "Pending"
-msgstr ""
-
-msgid "Delivered"
-msgstr ""
-
-msgid "Failed"
-msgstr ""
-
-msgid "Skipped"
-msgstr ""
-
-msgid "SMS Reminder — Reminder logs"
-msgstr ""
-
-msgid "Cron executed manually."
-msgstr ""
-
-msgid "See the logs below for results."
-msgstr ""
-
-msgid "API key missing!"
-msgstr ""
-
-#. translators: 1: Settings page hyperlink, 2: wp-config define snippet.
-msgid "Set it in %1$s or via %2$s in wp-config.php."
-msgstr ""
-
-msgid "Settings → SMS Reminder"
-msgstr ""
-
-msgid "Sandbox mode is active."
-msgstr ""
-
-msgid "SMS messages are not actually sent."
-msgstr ""
-
-msgid "Disable it in Settings"
-msgstr ""
-
-msgid "to switch to production."
-msgstr ""
-
-msgid "Configured"
-msgstr ""
-
-msgid "Sender:"
-msgstr ""
-
-msgid "Dashboard"
-msgstr ""
-
-msgid "Missing"
-msgstr ""
-
-msgid "Configure"
-msgstr ""
-
-msgid "Mode"
-msgstr ""
-
-msgid "Sandbox"
-msgstr ""
-
-msgid "Production"
-msgstr ""
-
-msgid "Cron — sending"
-msgstr ""
-
+#: settings-page.php:153
+#: admin-page.php:169
+#: admin-page.php:179
 msgid "Active"
 msgstr ""
 
-msgid "Next:"
-msgstr ""
-
+#: settings-page.php:153
+#: admin-page.php:172
+#: admin-page.php:182
 msgid "Inactive"
 msgstr ""
 
+#: settings-page.php:167
+#: settings-page.php:408
+msgid "Show"
+msgstr ""
+
+#: settings-page.php:181
+msgid "DLR webhook URL for this gateway:"
+msgstr ""
+
+#: settings-page.php:190
+msgid "SMS reminders"
+msgstr ""
+
+#: settings-page.php:192
+msgid "Configure up to 2 reminders per appointment. SMS 1 is mandatory, SMS 2 is optional. Each slot has its own timing and message."
+msgstr ""
+
+#: settings-page.php:198
+msgid "SMS 1 (required)"
+msgstr ""
+
+#: settings-page.php:205
+msgid "SMS 2 (optional)"
+msgstr ""
+
+#: settings-page.php:231
+msgid "Enable this reminder"
+msgstr ""
+
+#: settings-page.php:237
+msgid "Always active"
+msgstr ""
+
+#: settings-page.php:245
+msgid "Send"
+msgstr ""
+
+#: settings-page.php:260
+msgid "For very short reminders (< 1h), consider lowering the cron frequency below to 5 min or less."
+msgstr ""
+
+#: settings-page.php:267
+msgid "Message"
+msgstr ""
+
+#: settings-page.php:286
+msgid "Available template variables"
+msgstr ""
+
+#: settings-page.php:304
+msgid "Cron frequency & logs"
+msgstr ""
+
+#: settings-page.php:309
+msgid "Check frequency"
+msgstr ""
+
+#: settings-page.php:323
+msgid "How often the plugin checks for SMS to send. Should match your server cron. Changing this value automatically reschedules the WordPress cron on save."
+msgstr ""
+
+#: settings-page.php:329
+msgid "Keep logs for"
+msgstr ""
+
+#: settings-page.php:336
+msgid "days"
+msgstr ""
+
+#: settings-page.php:337
+msgid "Automatic purge runs every Monday at 3am. (7–365 days)"
+msgstr ""
+
+#: settings-page.php:343
+msgid "Save settings"
+msgstr ""
+
+#: settings-page.php:349
+msgid "System info"
+msgstr ""
+
+#: settings-page.php:353
+msgid "Plugin version"
+msgstr ""
+
+#: settings-page.php:357
+msgid "DLR webhook endpoint"
+msgstr ""
+
+#: settings-page.php:361
+msgid "Table prefix"
+msgstr ""
+
+#: settings-page.php:365
+msgid "Next send cron"
+msgstr ""
+
+#: settings-page.php:369
+#: settings-page.php:378
+msgid "Not scheduled"
+msgstr ""
+
+#: settings-page.php:374
+msgid "Next purge cron"
+msgstr ""
+
+#: settings-page.php:383
+msgid "Active slots"
+msgstr ""
+
+#: settings-page.php:388
+msgid "None"
+msgstr ""
+
+#: settings-page.php:393
+msgid "SMS %1$d · %2$s"
+msgstr ""
+
+#: settings-page.php:409
+msgid "Hide"
+msgstr ""
+
+#: settings-page.php:490
+msgid "Locked by wp-config.php"
+msgstr ""
+
+#: admin-page.php:48
+#: admin-page.php:193
+msgid "Pending"
+msgstr ""
+
+#: admin-page.php:49
+#: admin-page.php:194
+msgid "Delivered"
+msgstr ""
+
+#: admin-page.php:50
+#: admin-page.php:195
+msgid "Failed"
+msgstr ""
+
+#: admin-page.php:51
+#: admin-page.php:196
+msgid "Skipped"
+msgstr ""
+
+#: admin-page.php:92
+msgid "SMS Reminder — Reminder logs"
+msgstr ""
+
+#: admin-page.php:101
+msgid "Cron executed manually."
+msgstr ""
+
+#: admin-page.php:102
+msgid "See the logs below for results."
+msgstr ""
+
+#: admin-page.php:108
+msgid "Gateway not configured!"
+msgstr ""
+
+#: admin-page.php:112
+msgid "The active gateway (%1$s) has missing credentials. Configure it in %2$s."
+msgstr ""
+
+#: admin-page.php:114
+msgid "Settings → SMS Reminder"
+msgstr ""
+
+#: admin-page.php:122
+msgid "Sandbox mode is active."
+msgstr ""
+
+#: admin-page.php:123
+msgid "SMS messages are not actually sent."
+msgstr ""
+
+#: admin-page.php:124
+msgid "Disable it in Settings"
+msgstr ""
+
+#: admin-page.php:125
+msgid "to switch to production."
+msgstr ""
+
+#: admin-page.php:137
+msgid "Configured"
+msgstr ""
+
+#: admin-page.php:142
+#: admin-page.php:162
+msgid "Dashboard"
+msgstr ""
+
+#: admin-page.php:147
+msgid "Configure"
+msgstr ""
+
+#: admin-page.php:153
+msgid "Mode"
+msgstr ""
+
+#: admin-page.php:155
+msgid "Sandbox"
+msgstr ""
+
+#: admin-page.php:157
+msgid "Production"
+msgstr ""
+
+#: admin-page.php:167
+msgid "Cron — sending"
+msgstr ""
+
+#: admin-page.php:170
+#: admin-page.php:180
+msgid "Next:"
+msgstr ""
+
+#: admin-page.php:177
 msgid "Cron — purge"
 msgstr ""
 
+#: admin-page.php:192
 msgid "Total"
 msgstr ""
 
+#: admin-page.php:213
 msgid "Run SMS reminder processing now?"
 msgstr ""
 
+#: admin-page.php:214
 msgid "Run cron now"
 msgstr ""
 
+#: admin-page.php:219
 msgid "DLR endpoint:"
 msgstr ""
 
+#: admin-page.php:230
 msgid "No logs yet. The cron will send the first reminders within the hour."
 msgstr ""
 
+#: admin-page.php:238
 msgid "Appointment date"
 msgstr ""
 
+#: admin-page.php:239
 msgid "Reminder slot (SMS 1 = primary, SMS 2 = secondary)"
 msgstr ""
 
+#: admin-page.php:239
 msgid "Slot"
 msgstr ""
 
+#: admin-page.php:240
+msgid "Gateway"
+msgstr ""
+
+#: admin-page.php:241
 msgid "Customer"
 msgstr ""
 
+#: admin-page.php:242
 msgid "Phone"
 msgstr ""
 
+#: admin-page.php:243
 msgid "Service"
 msgstr ""
 
+#: admin-page.php:244
 msgid "Employee"
 msgstr ""
 
+#: admin-page.php:245
 msgid "SMS status"
 msgstr ""
 
+#: admin-page.php:246
 msgid "Sent at"
 msgstr ""
 
+#: admin-page.php:247
 msgid "Delivered at"
 msgstr ""
 
+#: admin-page.php:248
 msgid "Details"
 msgstr ""
 
+#: admin-page.php:286
 msgid "ID:"
 msgstr ""
 
-#. translators: 1: current page, 2: total pages, 3: total entries.
+#: admin-page.php:303
 msgid "Page %1$d / %2$d (%3$d entries)"
 msgstr ""
 
-#. translators: 1: retention days, 2: table prefix code, 3: settings link.
+#: admin-page.php:330
 msgid "Logs are purged automatically after %1$d days. Detected table prefix: %2$s — %3$s"
 msgstr ""
 
+#: admin-page.php:333
 msgid "Edit settings"
 msgstr ""
+
+#: includes/class-srfa-gateway-smspartner.php:17
+msgid "SMS Partner"
+msgstr ""
+
+#: includes/class-srfa-gateway-smspartner.php:21
+msgid "French SMS provider — reliable, competitive pricing, native French support."
+msgstr ""
+
+#: includes/class-srfa-gateway-smspartner.php:29
+msgid "API key"
+msgstr ""
+
+#: includes/class-srfa-gateway-smspartner.php:30
+msgid "Find your key in SMS Partner dashboard → Settings → API."
+msgstr ""
+
+#: includes/class-srfa-gateway-smspartner.php:32
+msgid "Your SMS Partner API key"
+msgstr ""
+
+#: includes/class-srfa-gateway-smspartner.php:38
+#: includes/class-srfa-gateway-ovh.php:71
+msgid "Sender"
+msgstr ""
+
+#: includes/class-srfa-gateway-smspartner.php:39
+msgid "3 to 11 alphanumeric characters, no spaces or accents."
+msgstr ""
+
+#: includes/class-srfa-gateway-smspartner.php:48
+msgid "Sandbox mode"
+msgstr ""
+
+#: includes/class-srfa-gateway-smspartner.php:49
+msgid "Enable test mode (no SMS actually sent, no credit used)."
+msgstr ""
+
+#: includes/class-srfa-gateway-smspartner.php:84
+#: includes/class-srfa-gateway-ovh.php:147
+#: includes/class-srfa-gateway-twilio.php:107
+msgid "Network error:"
+msgstr ""
+
+#: includes/class-srfa-gateway-smspartner.php:132
+msgid "Missing API key"
+msgstr ""
+
+#: includes/class-srfa-gateway-smspartner.php:133
+msgid "Missing phoneNumbers field"
+msgstr ""
+
+#: includes/class-srfa-gateway-smspartner.php:134
+msgid "Invalid API key"
+msgstr ""
+
+#: includes/class-srfa-gateway-smspartner.php:135
+msgid "Insufficient credits"
+msgstr ""
+
+#: includes/class-srfa-gateway-smspartner.php:136
+msgid "Number on STOP SMS list"
+msgstr ""
+
+#: includes/class-srfa-gateway-smspartner.php:137
+msgid "Account disabled"
+msgstr ""
+
+#: includes/class-srfa-gateway-smspartner.php:138
+msgid "Account blocked"
+msgstr ""
+
+#: includes/class-srfa-gateway-smspartner.php:139
+msgid "Low-cost SMS limited to 160 characters"
+msgstr ""
+
+#: includes/class-srfa-gateway-smspartner.php:140
+msgid "Max 500 numbers per request exceeded"
+msgstr ""
+
+#: includes/class-srfa-gateway-smspartner.php:141
+msgid "Malformed JSON syntax"
+msgstr ""
+
+#: includes/class-srfa-gateway-smspartner.php:142
+msgid "Unauthorized IP address"
+msgstr ""
+
+#: includes/class-srfa-gateway-smspartner.php:144
+#: includes/class-srfa-gateway-ovh.php:163
+#: includes/class-srfa-gateway-twilio.php:123
+msgid "Unknown error"
+msgstr ""
+
+#: includes/class-srfa-gateway-ovh.php:23
+msgid "OVH SMS"
+msgstr ""
+
+#: includes/class-srfa-gateway-ovh.php:27
+msgid "European SMS provider by OVHcloud — good EU pricing, data hosted in Europe."
+msgstr ""
+
+#: includes/class-srfa-gateway-ovh.php:35
+msgid "Service name"
+msgstr ""
+
+#: includes/class-srfa-gateway-ovh.php:36
+msgid "Your OVH SMS account identifier (e.g. sms-xx12345-1). OVH Manager → SMS → General info."
+msgstr ""
+
+#: includes/class-srfa-gateway-ovh.php:44
+msgid "Application Key (AK)"
+msgstr ""
+
+#: includes/class-srfa-gateway-ovh.php:45
+msgid "Create at eu.api.ovh.com/createApp."
+msgstr ""
+
+#: includes/class-srfa-gateway-ovh.php:53
+msgid "Application Secret (AS)"
+msgstr ""
+
+#: includes/class-srfa-gateway-ovh.php:54
+msgid "The secret generated alongside the Application Key."
+msgstr ""
+
+#: includes/class-srfa-gateway-ovh.php:62
+msgid "Consumer Key (CK)"
+msgstr ""
+
+#: includes/class-srfa-gateway-ovh.php:63
+msgid "Generated by requesting a credential token with GET /sms/* permissions. See the OVH API documentation."
+msgstr ""
+
+#: includes/class-srfa-gateway-ovh.php:72
+msgid "Registered sender name (must be pre-approved in OVH Manager → SMS → Senders)."
+msgstr ""
+
+#: includes/class-srfa-gateway-ovh.php:81
+msgid "Suppress STOP clause"
+msgstr ""
+
+#: includes/class-srfa-gateway-ovh.php:82
+msgid "Disable the legal \"STOP\" clause appended to marketing SMS. Only enable for transactional messages (appointment reminders qualify in most jurisdictions)."
+msgstr ""
+
+#: includes/class-srfa-gateway-ovh.php:99
+msgid "OVH SMS: one or more credentials are missing (service, AK, AS, CK, sender)."
+msgstr ""
+
+#: includes/class-srfa-gateway-ovh.php:123
+msgid "OVH SMS: unable to fetch API server time."
+msgstr ""
+
+#: includes/class-srfa-gateway-twilio.php:21
+msgid "Twilio"
+msgstr ""
+
+#: includes/class-srfa-gateway-twilio.php:25
+msgid "Global SMS provider — excellent worldwide coverage, deliverability, and developer tooling."
+msgstr ""
+
+#: includes/class-srfa-gateway-twilio.php:33
+msgid "Account SID"
+msgstr ""
+
+#: includes/class-srfa-gateway-twilio.php:34
+msgid "Twilio Console → Account Info → Account SID (starts with \"AC…\")."
+msgstr ""
+
+#: includes/class-srfa-gateway-twilio.php:42
+msgid "Auth Token"
+msgstr ""
+
+#: includes/class-srfa-gateway-twilio.php:43
+msgid "Twilio Console → Account Info → Auth Token."
+msgstr ""
+
+#: includes/class-srfa-gateway-twilio.php:45
+msgid "Your Twilio Auth Token"
+msgstr ""
+
+#: includes/class-srfa-gateway-twilio.php:51
+msgid "From number"
+msgstr ""
+
+#: includes/class-srfa-gateway-twilio.php:52
+msgid "E.164 format (e.g. +33712345678). Must be a Twilio-owned or verified number, or a Messaging Service SID (MG…)."
+msgstr ""
+
+#: includes/class-srfa-gateway-twilio.php:60
+msgid "Use Messaging Service SID"
+msgstr ""
+
+#: includes/class-srfa-gateway-twilio.php:61
+msgid "Check if the \"From number\" field above is actually a Messaging Service SID (MGxxxxxxxx…)."
+msgstr ""
+
+#: includes/class-srfa-gateway-twilio.php:76
+msgid "Twilio: Account SID, Auth Token or From number missing."
+msgstr ""
+

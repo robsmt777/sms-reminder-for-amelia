@@ -3,7 +3,7 @@
  * Plugin Name: SMS Reminder for Amelia
  * Plugin URI:  https://capitainesite.com/
  * Description: Envoi automatique de SMS de rappel de rendez-vous pour Amelia Booking, via SMS Partner, en lisant directement les tables Amelia. D'autres passerelles SMS arriveront dans les prochaines versions.
- * Version:     1.2.0
+ * Version:     1.3.0
  * Author:      Capitaine Site — Agence experte WordPress
  * Author URI:  https://capitainesite.com/
  * License:     GPL-2.0-or-later
@@ -30,12 +30,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // ─── Constantes internes (non surchargeables) ────────────────────────────────
 
-define( 'SRFA_VERSION',    '1.2.0' );
+define( 'SRFA_VERSION',    '1.3.0' );
 define( 'SRFA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SRFA_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'SRFA_API_URL',    'https://api.smspartner.fr/v1/send' );
 define( 'SRFA_LOG_TABLE',  'srfa_logs' );    // sans préfixe $wpdb->prefix
 define( 'SRFA_OPTION_KEY', 'srfa_settings' );
+
+
+// ─── Gateway abstraction layer (v1.3+) ───────────────────────────────────────
+
+require_once __DIR__ . '/includes/interface-srfa-gateway.php';
+require_once __DIR__ . '/includes/class-srfa-gateway-smspartner.php';
+require_once __DIR__ . '/includes/class-srfa-gateway-ovh.php';
+require_once __DIR__ . '/includes/class-srfa-gateway-twilio.php';
+require_once __DIR__ . '/includes/class-srfa-gateway-registry.php';
 
 
 // ─── Chargement du text domain (i18n) ────────────────────────────────────────
@@ -58,19 +66,6 @@ function srfa_load_textdomain() {
  * Priorité : define() dans wp-config.php > option en base > valeur par défaut.
  */
 function srfa_get_option( $key, $default = null ) {
-    $const_map = [
-        'api_key' => 'SRFA_API_KEY',
-        'sandbox' => 'SRFA_SANDBOX',
-        'sender'  => 'SRFA_SENDER',
-    ];
-
-    if ( isset( $const_map[ $key ] ) && defined( $const_map[ $key ] ) ) {
-        $val = constant( $const_map[ $key ] );
-        if ( $key !== 'api_key' || $val !== '' ) {
-            return $val;
-        }
-    }
-
     $options = get_option( SRFA_OPTION_KEY, [] );
 
     if ( isset( $options[ $key ] ) && $options[ $key ] !== '' ) {
@@ -78,9 +73,7 @@ function srfa_get_option( $key, $default = null ) {
     }
 
     $defaults = [
-        'api_key'        => '',
-        'sandbox'        => true,
-        'sender'         => 'Reminder',
+        'active_gateway' => 'smspartner',
         'purge_days'     => 30,
         'cron_frequency' => 15,
     ];
@@ -90,6 +83,46 @@ function srfa_get_option( $key, $default = null ) {
     }
 
     return isset( $defaults[ $key ] ) ? $defaults[ $key ] : null;
+}
+
+/**
+ * Backward-compat: returns true if an SMSPartner setting is locked by a define()
+ * in wp-config.php (v1.0–1.2 installs). Only applies when active_gateway = smspartner.
+ */
+function srfa_is_locked_smspartner( $key ) {
+    if ( srfa_get_option( 'active_gateway', 'smspartner' ) !== 'smspartner' ) { return false; }
+    $const_map = [
+        'api_key' => 'SRFA_API_KEY',
+        'sandbox' => 'SRFA_SANDBOX',
+        'sender'  => 'SRFA_SENDER',
+    ];
+    if ( ! isset( $const_map[ $key ] ) ) { return false; }
+    $const = $const_map[ $key ];
+    if ( ! defined( $const ) ) { return false; }
+    if ( $key === 'api_key' && constant( $const ) === '' ) { return false; }
+    return true;
+}
+
+/**
+ * Returns the merged settings for the active gateway, with wp-config overrides
+ * applied when applicable (SMSPartner only, for backward-compat).
+ */
+function srfa_get_active_gateway_settings() {
+    $gw_id    = srfa_get_option( 'active_gateway', 'smspartner' );
+    $settings = SRFA_Gateway_Registry::get_settings( $gw_id );
+
+    if ( $gw_id === 'smspartner' ) {
+        if ( defined( 'SRFA_API_KEY' ) && constant( 'SRFA_API_KEY' ) !== '' ) {
+            $settings['api_key'] = constant( 'SRFA_API_KEY' );
+        }
+        if ( defined( 'SRFA_SENDER' ) ) {
+            $settings['sender'] = constant( 'SRFA_SENDER' );
+        }
+        if ( defined( 'SRFA_SANDBOX' ) ) {
+            $settings['sandbox'] = (bool) constant( 'SRFA_SANDBOX' );
+        }
+    }
+    return $settings;
 }
 
 
@@ -167,34 +200,6 @@ function srfa_get_active_slots() {
     } );
 }
 
-/**
- * Indique si un réglage est verrouillé par un define() wp-config.php.
- * Utilisé pour afficher un badge "verrouillé" dans l'UI.
- *
- * @param  string $key
- * @return bool
- */
-function srfa_is_locked( $key ) {
-    $const_map = [
-        'api_key' => 'SRFA_API_KEY',
-        'sandbox' => 'SRFA_SANDBOX',
-        'sender'  => 'SRFA_SENDER',
-    ];
-    if ( ! isset( $const_map[ $key ] ) ) {
-        return false;
-    }
-    $const = $const_map[ $key ];
-    if ( ! defined( $const ) ) {
-        return false;
-    }
-    // api_key vide = pas vraiment verrouillé
-    if ( $key === 'api_key' && constant( $const ) === '' ) {
-        return false;
-    }
-    return true;
-}
-
-
 // ─── Activation / Désactivation / Désinstallation ────────────────────────────
 
 register_activation_hook( __FILE__,   'srfa_activate' );
@@ -226,6 +231,7 @@ function srfa_create_table() {
         id                   BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
         appointment_id       BIGINT(20) UNSIGNED NOT NULL,
         reminder_slot        TINYINT(1)          NOT NULL DEFAULT 1,
+        gateway              VARCHAR(32)         NOT NULL DEFAULT 'smspartner',
         customer_phone       VARCHAR(63)         NOT NULL DEFAULT '',
         customer_name        VARCHAR(255)        NOT NULL DEFAULT '',
         appointment_datetime DATETIME            NOT NULL,
@@ -233,7 +239,7 @@ function srfa_create_table() {
         employee_name        VARCHAR(255)        NOT NULL DEFAULT '',
         location_name        VARCHAR(255)        NOT NULL DEFAULT '',
         sms_status           ENUM('pending','delivered','failed','skipped') NOT NULL DEFAULT 'pending',
-        sms_message_id       VARCHAR(64)         DEFAULT NULL,
+        sms_message_id       VARCHAR(128)        DEFAULT NULL,
         error_message        TEXT                DEFAULT NULL,
         sent_at              DATETIME            DEFAULT NULL,
         delivery_at          DATETIME            DEFAULT NULL,
@@ -241,6 +247,7 @@ function srfa_create_table() {
         PRIMARY KEY  (id),
         KEY idx_appointment_id (appointment_id),
         KEY idx_reminder_slot  (reminder_slot),
+        KEY idx_gateway        (gateway),
         KEY idx_sms_status     (sms_status),
         KEY idx_created_at     (created_at)
     ) {$charset};";
@@ -258,9 +265,10 @@ function srfa_create_table() {
 function srfa_maybe_migrate() {
     global $wpdb;
 
-    // 1. Migration table : ajouter reminder_slot si absent
     $table = $wpdb->prefix . SRFA_LOG_TABLE;
-    $col   = $wpdb->get_var( $wpdb->prepare(
+
+    // 1. Migration table : ajouter reminder_slot si absent (v1.0 → v1.1)
+    $col = $wpdb->get_var( $wpdb->prepare(
         "SHOW COLUMNS FROM {$table} LIKE %s", 'reminder_slot'
     ) );
     if ( ! $col ) {
@@ -269,8 +277,20 @@ function srfa_maybe_migrate() {
         error_log( '[SMS Reminder] Migration table : colonne reminder_slot ajoutée, anciens logs marqués slot=1.' );
     }
 
-    // 2. Migration options : convertir v1.0 (message_template + reminder_hours_*) → structure slots
+    // 1b. Migration table : ajouter gateway + élargir sms_message_id (v1.2 → v1.3)
+    $col_gw = $wpdb->get_var( $wpdb->prepare(
+        "SHOW COLUMNS FROM {$table} LIKE %s", 'gateway'
+    ) );
+    if ( ! $col_gw ) {
+        $wpdb->query( "ALTER TABLE {$table} ADD COLUMN gateway VARCHAR(32) NOT NULL DEFAULT 'smspartner' AFTER reminder_slot" );
+        $wpdb->query( "ALTER TABLE {$table} ADD INDEX idx_gateway (gateway)" );
+        $wpdb->query( "ALTER TABLE {$table} MODIFY COLUMN sms_message_id VARCHAR(128) DEFAULT NULL" );
+        error_log( '[SMS Reminder] Migration table : colonne gateway ajoutée, anciens logs marqués gateway=smspartner.' );
+    }
+
     $options = get_option( SRFA_OPTION_KEY, [] );
+
+    // 2. Migration options : convertir v1.0 (message_template + reminder_hours_*) → structure slots
     if ( ! isset( $options['slots'] ) ) {
         $old_template = isset( $options['message_template'] ) && $options['message_template'] !== ''
             ? $options['message_template']
@@ -294,6 +314,22 @@ function srfa_maybe_migrate() {
 
         update_option( SRFA_OPTION_KEY, $options );
         error_log( '[SMS Reminder] Migration options v1.0 → v1.1 : slots initialisés, ancien template conservé en SMS 1.' );
+    }
+
+    // 3. Migration options : isoler la config SMSPartner dans gateway_smspartner (v1.2 → v1.3)
+    if ( ! isset( $options['active_gateway'] ) ) {
+        $options['active_gateway']     = 'smspartner';
+        $options['gateway_smspartner'] = [
+            'api_key' => $options['api_key'] ?? '',
+            'sender'  => $options['sender']  ?? 'Reminder',
+            'sandbox' => isset( $options['sandbox'] ) ? (bool) $options['sandbox'] : true,
+        ];
+
+        // Supprimer les anciennes clés top-level
+        unset( $options['api_key'], $options['sender'], $options['sandbox'] );
+
+        update_option( SRFA_OPTION_KEY, $options );
+        error_log( '[SMS Reminder] Migration options v1.2 → v1.3 : config SMSPartner isolée, active_gateway = smspartner.' );
     }
 }
 
@@ -365,11 +401,8 @@ add_action( 'srfa_weekly_purge', 'srfa_purge_old_logs' );
 function srfa_process_reminders() {
     error_log( '[SMS Reminder] Démarrage du cron.' );
 
-    $api_key = srfa_get_option( 'api_key' );
-    if ( empty( $api_key ) ) {
-        error_log( '[SMS Reminder] ERREUR : clé API non configurée (ni define ni réglage dashboard).' );
-        return;
-    }
+    $gateway = SRFA_Gateway_Registry::active();
+    error_log( '[SMS Reminder] Active gateway: ' . $gateway->get_id() );
 
     $active_slots = srfa_get_active_slots();
     if ( empty( $active_slots ) ) {
@@ -542,90 +575,43 @@ function srfa_build_message( $appt, $template ) {
 
 
 function srfa_send_reminder( $appt, $slot_num, $slot_config ) {
+    $gateway    = SRFA_Gateway_Registry::active();
+    $gateway_id = $gateway->get_id();
+
     $phone = srfa_format_phone( $appt->customer_phone );
     if ( ! $phone ) {
-        srfa_insert_log( $appt, $slot_num, 'skipped', null, 'Numéro invalide : ' . $appt->customer_phone );
+        srfa_insert_log( $appt, $slot_num, $gateway_id, 'skipped', null, 'Invalid phone: ' . $appt->customer_phone );
         return;
     }
 
-    $message = srfa_build_message( $appt, $slot_config['template'] );
-    $api_key = srfa_get_option( 'api_key' );
-    $sender  = srfa_get_option( 'sender' );
-    $sandbox = (bool) srfa_get_option( 'sandbox' );
-
-    $payload = [
-        'apiKey'       => $api_key,
-        'phoneNumbers' => $phone,
-        'sender'       => $sender,
-        'gamme'        => 1,
-        'sandbox'      => $sandbox ? 1 : 0,
-        'message'      => $message,
-    ];
+    $message  = srfa_build_message( $appt, $slot_config['template'] );
+    $settings = srfa_get_active_gateway_settings();
 
     error_log( sprintf(
-        '[SMS Reminder] Envoi SMS slot %d — RDV #%d, %s (%s), sandbox:%s',
+        '[SMS Reminder] Send slot %d via %s — appt #%d, %s (%s)',
         $slot_num,
+        $gateway_id,
         $appt->appointment_id,
         $appt->customer_name,
-        $phone,
-        $sandbox ? 'OUI' : 'NON'
+        $phone
     ) );
 
-    $response = wp_remote_post( SRFA_API_URL, [
-        'timeout'     => 15,
-        'redirection' => 3,
-        'httpversion' => '1.1',
-        'headers'     => [ 'Content-Type' => 'application/json' ],
-        'body'        => wp_json_encode( $payload ),
-    ] );
+    $result = $gateway->send( $phone, $message, $settings );
 
-    if ( is_wp_error( $response ) ) {
-        $err = $response->get_error_message();
-        error_log( "[SMS Reminder] Erreur réseau — slot {$slot_num}, RDV #{$appt->appointment_id} : {$err}" );
-        srfa_insert_log( $appt, $slot_num, 'failed', null, 'Erreur réseau : ' . $err );
-        return;
-    }
-
-    $http_code = wp_remote_retrieve_response_code( $response );
-    $body      = wp_remote_retrieve_body( $response );
-    $data      = json_decode( $body, true );
-
-    error_log( "[SMS Reminder] Réponse API (HTTP {$http_code}) — slot {$slot_num}, RDV #{$appt->appointment_id} : {$body}" );
-
-    if ( $http_code === 200 && ! empty( $data['success'] ) && $data['success'] === true ) {
-        $message_id = isset( $data['message_id'] ) ? (string) $data['message_id'] : null;
-        srfa_insert_log( $appt, $slot_num, 'pending', $message_id, null );
-        error_log( "[SMS Reminder] SMS accepté — slot {$slot_num}, RDV #{$appt->appointment_id}, message_id:{$message_id}" );
+    if ( ! empty( $result['success'] ) ) {
+        srfa_insert_log( $appt, $slot_num, $gateway_id, 'pending', $result['message_id'], null );
+        error_log( "[SMS Reminder] Accepted — slot {$slot_num}, appt #{$appt->appointment_id}, message_id: {$result['message_id']}" );
     } else {
-        $error_code = isset( $data['code'] ) ? $data['code'] : $http_code;
-        $error_msg  = srfa_api_error_label( $error_code ) . ' (code ' . $error_code . ')';
-        srfa_insert_log( $appt, $slot_num, 'failed', null, $error_msg );
-        error_log( "[SMS Reminder] Échec API — slot {$slot_num}, RDV #{$appt->appointment_id} : {$error_msg}" );
+        $err = isset( $result['error'] ) ? $result['error'] : 'Unknown error';
+        srfa_insert_log( $appt, $slot_num, $gateway_id, 'failed', null, $err );
+        error_log( "[SMS Reminder] Failed — slot {$slot_num}, appt #{$appt->appointment_id}: {$err}" );
     }
-}
-
-
-function srfa_api_error_label( $code ) {
-    $labels = [
-        1  => __( 'Missing API key',                        'sms-reminder-for-amelia' ),
-        2  => __( 'Missing phoneNumbers field',             'sms-reminder-for-amelia' ),
-        10 => __( 'Invalid API key',                        'sms-reminder-for-amelia' ),
-        11 => __( 'Insufficient credits',                   'sms-reminder-for-amelia' ),
-        14 => __( 'Number on STOP SMS list',                'sms-reminder-for-amelia' ),
-        20 => __( 'Account disabled',                       'sms-reminder-for-amelia' ),
-        30 => __( 'Account blocked',                        'sms-reminder-for-amelia' ),
-        42 => __( 'Low-cost SMS limited to 160 characters', 'sms-reminder-for-amelia' ),
-        50 => __( 'Max 500 numbers per request exceeded',   'sms-reminder-for-amelia' ),
-        90 => __( 'Malformed JSON syntax',                  'sms-reminder-for-amelia' ),
-        96 => __( 'Unauthorized IP address',                'sms-reminder-for-amelia' ),
-    ];
-    return isset( $labels[ $code ] ) ? $labels[ $code ] : __( 'Unknown error', 'sms-reminder-for-amelia' );
 }
 
 
 // ─── Insertion d'un log ───────────────────────────────────────────────────────
 
-function srfa_insert_log( $appt, $slot_num, $status, $message_id = null, $error_msg = null ) {
+function srfa_insert_log( $appt, $slot_num, $gateway_id, $status, $message_id = null, $error_msg = null ) {
     global $wpdb;
 
     $wpdb->insert(
@@ -633,6 +619,7 @@ function srfa_insert_log( $appt, $slot_num, $status, $message_id = null, $error_
         [
             'appointment_id'       => (int) $appt->appointment_id,
             'reminder_slot'        => (int) $slot_num,
+            'gateway'              => (string) $gateway_id,
             'customer_phone'       => $appt->customer_phone,
             'customer_name'        => $appt->customer_name,
             'appointment_datetime' => $appt->appointment_datetime,
@@ -645,7 +632,7 @@ function srfa_insert_log( $appt, $slot_num, $status, $message_id = null, $error_
             'sent_at'              => ( $status !== 'skipped' ) ? current_time( 'mysql' ) : null,
             'created_at'           => current_time( 'mysql' ),
         ],
-        [ '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ]
+        [ '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ]
     );
 }
 
@@ -653,55 +640,71 @@ function srfa_insert_log( $appt, $slot_num, $status, $message_id = null, $error_
 // ─── Endpoint REST : accusé de réception SMS Partner (DLR) ───────────────────
 
 add_action( 'rest_api_init', function () {
-    register_rest_route( 'srfa/v1', '/sms-delivery', [
-        'methods'             => 'POST',
+    // Per-gateway DLR endpoint (v1.3+)
+    register_rest_route( 'srfa/v1', '/sms-delivery/(?P<gateway>[a-z0-9_-]+)', [
+        'methods'             => [ 'POST', 'GET' ], // some providers use GET callbacks
         'callback'            => 'srfa_delivery_webhook',
+        'permission_callback' => '__return_true',
+        'args'                => [
+            'gateway' => [ 'type' => 'string', 'required' => true ],
+        ],
+    ] );
+    // Legacy endpoint (v1.0–1.2) — kept for backward-compat, assumes SMSPartner
+    register_rest_route( 'srfa/v1', '/sms-delivery', [
+        'methods'             => [ 'POST', 'GET' ],
+        'callback'            => 'srfa_delivery_webhook_legacy',
         'permission_callback' => '__return_true',
     ] );
 } );
 
+function srfa_delivery_webhook_legacy( WP_REST_Request $request ) {
+    $request->set_url_params( [ 'gateway' => 'smspartner' ] );
+    return srfa_delivery_webhook( $request );
+}
+
 function srfa_delivery_webhook( WP_REST_Request $request ) {
     global $wpdb;
 
-    $body = $request->get_json_params();
-    error_log( '[SMS Reminder] Webhook DLR reçu : ' . wp_json_encode( $body ) );
+    $gateway_id = sanitize_key( $request->get_param( 'gateway' ) );
+    $gateway    = SRFA_Gateway_Registry::get( $gateway_id );
 
-    if ( empty( $body['msgId'] ) || empty( $body['status'] ) ) {
-        error_log( '[SMS Reminder] Webhook DLR invalide — champs msgId ou status manquants.' );
+    error_log( sprintf( '[SMS Reminder] DLR webhook for gateway "%s": %s',
+        $gateway_id,
+        wp_json_encode( $request->get_params() )
+    ) );
+
+    if ( ! $gateway ) {
+        return new WP_REST_Response( [ 'error' => 'unknown_gateway' ], 404 );
+    }
+
+    $parsed = $gateway->handle_dlr( $request );
+
+    if ( ! $parsed || empty( $parsed['message_id'] ) || empty( $parsed['status'] ) ) {
+        error_log( '[SMS Reminder] DLR webhook invalid payload for ' . $gateway_id );
         return new WP_REST_Response( [ 'error' => 'invalid_payload' ], 400 );
     }
 
-    $msg_id     = sanitize_text_field( $body['msgId'] );
-    $raw_status = sanitize_text_field( $body['status'] );
-
-    $status_map      = [
-        'delivered'     => 'delivered',
-        'not delivered' => 'failed',
-        'waiting'       => 'pending',
-        'ko'            => 'failed',
-    ];
-    $internal_status = isset( $status_map[ $raw_status ] ) ? $status_map[ $raw_status ] : 'failed';
-
     $log_tbl = $wpdb->prefix . SRFA_LOG_TABLE;
     $row     = $wpdb->get_row( $wpdb->prepare(
-        "SELECT id FROM {$log_tbl} WHERE sms_message_id = %s LIMIT 1",
-        $msg_id
+        "SELECT id FROM {$log_tbl} WHERE sms_message_id = %s AND gateway = %s LIMIT 1",
+        $parsed['message_id'],
+        $gateway_id
     ) );
 
     if ( ! $row ) {
-        error_log( "[SMS Reminder] Webhook DLR — aucun log pour message_id : {$msg_id}" );
+        error_log( "[SMS Reminder] DLR webhook — no log found for message_id: {$parsed['message_id']} ({$gateway_id})" );
         return new WP_REST_Response( [ 'ok' => true ], 200 );
     }
 
     $wpdb->update(
         $log_tbl,
-        [ 'sms_status' => $internal_status, 'delivery_at' => current_time( 'mysql' ) ],
+        [ 'sms_status' => $parsed['status'], 'delivery_at' => current_time( 'mysql' ) ],
         [ 'id' => $row->id ],
         [ '%s', '%s' ],
         [ '%d' ]
     );
 
-    error_log( "[SMS Reminder] Webhook DLR — log #{$row->id} → {$internal_status}" );
+    error_log( "[SMS Reminder] DLR webhook — log #{$row->id} → {$parsed['status']} ({$gateway_id})" );
     return new WP_REST_Response( [ 'ok' => true ], 200 );
 }
 
@@ -793,20 +796,35 @@ function srfa_register_settings() {
 function srfa_sanitize_settings( $input ) {
     $clean = [];
 
-    if ( ! srfa_is_locked( 'api_key' ) ) {
-        $clean['api_key'] = sanitize_text_field( $input['api_key'] ?? '' );
-    }
+    // ── Active gateway ──────────────────────────────────────────────────────
+    $all_gateways   = SRFA_Gateway_Registry::all();
+    $active_gateway = isset( $input['active_gateway'] ) ? sanitize_key( $input['active_gateway'] ) : 'smspartner';
+    if ( ! isset( $all_gateways[ $active_gateway ] ) ) { $active_gateway = 'smspartner'; }
+    $clean['active_gateway'] = $active_gateway;
 
-    if ( ! srfa_is_locked( 'sandbox' ) ) {
-        $clean['sandbox'] = ! empty( $input['sandbox'] );
-    }
+    // ── Per-gateway settings sections ───────────────────────────────────────
+    foreach ( $all_gateways as $gw_id => $gw ) {
+        $section_key = 'gateway_' . $gw_id;
+        $section_in  = isset( $input[ $section_key ] ) && is_array( $input[ $section_key ] ) ? $input[ $section_key ] : [];
+        $section_out = [];
 
-    if ( ! srfa_is_locked( 'sender' ) ) {
-        $sender = sanitize_text_field( $input['sender'] ?? 'Reminder' );
-        $sender = preg_replace( '/[^a-zA-Z0-9]/', '', $sender );
-        $sender = substr( $sender, 0, 11 );
-        if ( strlen( $sender ) < 3 ) { $sender = 'Reminder'; }
-        $clean['sender'] = $sender;
+        foreach ( $gw->get_fields() as $field ) {
+            $key  = $field['key'];
+            $type = $field['type'] ?? 'text';
+
+            if ( $type === 'checkbox' ) {
+                $section_out[ $key ] = ! empty( $section_in[ $key ] );
+            } else {
+                $value = $section_in[ $key ] ?? ( $field['default'] ?? '' );
+                if ( isset( $field['sanitize'] ) && is_callable( $field['sanitize'] ) ) {
+                    $value = call_user_func( $field['sanitize'], $value );
+                } else {
+                    $value = sanitize_text_field( (string) $value );
+                }
+                $section_out[ $key ] = $value;
+            }
+        }
+        $clean[ $section_key ] = $section_out;
     }
 
     $clean['purge_days'] = max( 7, min( 365, (int) ( $input['purge_days'] ?? 30 ) ) );

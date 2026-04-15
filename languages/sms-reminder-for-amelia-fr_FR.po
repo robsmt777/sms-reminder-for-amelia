@@ -3,10 +3,10 @@
 # This file is distributed under the GPL-2.0-or-later license.
 msgid ""
 msgstr ""
-"Project-Id-Version: SMS Reminder for Amelia 1.2.0\n"
+"Project-Id-Version: SMS Reminder for Amelia 1.3.0\n"
 "Report-Msgid-Bugs-To: https://github.com/robsmt777/sms-reminder-for-amelia/issues\n"
-"POT-Creation-Date: 2026-04-14 00:00+0000\n"
-"PO-Revision-Date: 2026-04-14 00:00+0000\n"
+"POT-Creation-Date: 2026-04-15 00:00+0000\n"
+"PO-Revision-Date: 2026-04-15 00:00+0000\n"
 "Last-Translator: Capitaine Site <contact@capitainesite.com>\n"
 "Language-Team: French <fr@li.org>\n"
 "Language: fr_FR\n"
@@ -66,42 +66,6 @@ msgstr "Toutes les 30 minutes"
 
 msgid "Every hour"
 msgstr "Toutes les heures"
-
-msgid "Missing API key"
-msgstr "Clé API manquante"
-
-msgid "Missing phoneNumbers field"
-msgstr "Champ phoneNumbers manquant"
-
-msgid "Invalid API key"
-msgstr "Clé API incorrecte"
-
-msgid "Insufficient credits"
-msgstr "Crédits insuffisants"
-
-msgid "Number on STOP SMS list"
-msgstr "Numéro en liste STOP SMS"
-
-msgid "Account disabled"
-msgstr "Compte désactivé"
-
-msgid "Account blocked"
-msgstr "Compte bloqué"
-
-msgid "Low-cost SMS limited to 160 characters"
-msgstr "SMS low-cost limité à 160 caractères"
-
-msgid "Max 500 numbers per request exceeded"
-msgstr "Maximum 500 numéros par requête dépassé"
-
-msgid "Malformed JSON syntax"
-msgstr "Syntaxe JSON malformée"
-
-msgid "Unauthorized IP address"
-msgstr "Adresse IP non autorisée"
-
-msgid "Unknown error"
-msgstr "Erreur inconnue"
 
 msgid "SMS Reminder — Logs"
 msgstr "SMS Reminder — Logs"
@@ -175,41 +139,29 @@ msgstr "Voir les logs"
 msgid "Settings saved."
 msgstr "Réglages enregistrés."
 
-msgid "SMS Partner API"
-msgstr "API SMS Partner"
+msgid "SMS gateway"
+msgstr "Passerelle SMS"
 
-msgid "API key"
-msgstr "Clé API"
+msgid "Choose which SMS provider to use. Each gateway has its own configuration fields below."
+msgstr "Choisissez la passerelle SMS à utiliser. Chaque passerelle a ses propres champs de configuration ci-dessous."
 
-msgid "Your SMS Partner API key"
-msgstr "Votre clé API SMS Partner"
+msgid "Active gateway"
+msgstr "Passerelle active"
+
+msgid "Configuration"
+msgstr "Configuration"
+
+msgid "Active"
+msgstr "Actif"
+
+msgid "Inactive"
+msgstr "Inactif"
 
 msgid "Show"
 msgstr "Afficher"
 
-msgid "Find your key in SMS Partner dashboard → Settings → API."
-msgstr "Trouvez votre clé dans le dashboard SMS Partner → Paramètres → API."
-
-msgid "Sender"
-msgstr "Expéditeur"
-
-msgid "3 to 11 alphanumeric characters, no spaces or accents. Displayed in place of the phone number on the recipient phone."
-msgstr "3 à 11 caractères alphanumériques, sans espaces ni accents. Affiché à la place du numéro sur le téléphone du client."
-
-msgid "Sandbox mode"
-msgstr "Mode sandbox"
-
-msgid "Active (test)"
-msgstr "Actif (test)"
-
-msgid "Inactive (production)"
-msgstr "Inactif (production)"
-
-msgid "Enable test mode (no SMS actually sent, no credit used)"
-msgstr "Activer le mode test (aucun SMS réellement envoyé, aucun crédit débité)"
-
-msgid "Disable this to switch to production."
-msgstr "Désactivez cette option pour passer en production."
+msgid "DLR webhook URL for this gateway:"
+msgstr "URL du webhook DLR pour cette passerelle :"
 
 msgid "SMS reminders"
 msgstr "Rappels SMS"
@@ -319,11 +271,11 @@ msgstr "Cron exécuté manuellement."
 msgid "See the logs below for results."
 msgstr "Consultez les logs ci-dessous pour voir les résultats."
 
-msgid "API key missing!"
-msgstr "Clé API manquante !"
+msgid "Gateway not configured!"
+msgstr "Passerelle non configurée !"
 
-msgid "Set it in %1$s or via %2$s in wp-config.php."
-msgstr "Renseignez-la dans %1$s ou via %2$s dans wp-config.php."
+msgid "The active gateway (%1$s) has missing credentials. Configure it in %2$s."
+msgstr "La passerelle active (%1$s) n'a pas tous ses identifiants. Configurez-la dans %2$s."
 
 msgid "Settings → SMS Reminder"
 msgstr "Réglages → SMS Reminder"
@@ -343,14 +295,8 @@ msgstr "pour passer en production."
 msgid "Configured"
 msgstr "Configurée"
 
-msgid "Sender:"
-msgstr "Expéditeur :"
-
 msgid "Dashboard"
 msgstr "Dashboard"
-
-msgid "Missing"
-msgstr "Manquante"
 
 msgid "Configure"
 msgstr "Configurer"
@@ -367,14 +313,8 @@ msgstr "Production"
 msgid "Cron — sending"
 msgstr "Cron — envoi"
 
-msgid "Active"
-msgstr "Actif"
-
 msgid "Next:"
 msgstr "Prochain :"
-
-msgid "Inactive"
-msgstr "Inactif"
 
 msgid "Cron — purge"
 msgstr "Cron — purge"
@@ -402,6 +342,9 @@ msgstr "Slot de rappel (SMS 1 = principal, SMS 2 = complémentaire)"
 
 msgid "Slot"
 msgstr "Slot"
+
+msgid "Gateway"
+msgstr "Passerelle"
 
 msgid "Customer"
 msgstr "Client"
@@ -438,3 +381,150 @@ msgstr "Les logs sont purgés automatiquement après %1$d jours. Préfixe de tab
 
 msgid "Edit settings"
 msgstr "Modifier les réglages"
+
+msgid "SMS Partner"
+msgstr "SMS Partner"
+
+msgid "French SMS provider — reliable, competitive pricing, native French support."
+msgstr "Opérateur SMS français — fiable, tarifs compétitifs, support en français."
+
+msgid "API key"
+msgstr "Clé API"
+
+msgid "Find your key in SMS Partner dashboard → Settings → API."
+msgstr "Trouvez votre clé dans le dashboard SMS Partner → Paramètres → API."
+
+msgid "Your SMS Partner API key"
+msgstr "Votre clé API SMS Partner"
+
+msgid "Sender"
+msgstr "Expéditeur"
+
+msgid "3 to 11 alphanumeric characters, no spaces or accents."
+msgstr "3 à 11 caractères alphanumériques, sans espaces ni accents."
+
+msgid "Sandbox mode"
+msgstr "Mode sandbox"
+
+msgid "Enable test mode (no SMS actually sent, no credit used)."
+msgstr "Activer le mode test (aucun SMS réellement envoyé, aucun crédit débité)."
+
+msgid "Network error:"
+msgstr "Erreur réseau :"
+
+msgid "Missing API key"
+msgstr "Clé API manquante"
+
+msgid "Missing phoneNumbers field"
+msgstr "Champ phoneNumbers manquant"
+
+msgid "Invalid API key"
+msgstr "Clé API incorrecte"
+
+msgid "Insufficient credits"
+msgstr "Crédits insuffisants"
+
+msgid "Number on STOP SMS list"
+msgstr "Numéro en liste STOP SMS"
+
+msgid "Account disabled"
+msgstr "Compte désactivé"
+
+msgid "Account blocked"
+msgstr "Compte bloqué"
+
+msgid "Low-cost SMS limited to 160 characters"
+msgstr "SMS low-cost limité à 160 caractères"
+
+msgid "Max 500 numbers per request exceeded"
+msgstr "Maximum 500 numéros par requête dépassé"
+
+msgid "Malformed JSON syntax"
+msgstr "Syntaxe JSON malformée"
+
+msgid "Unauthorized IP address"
+msgstr "Adresse IP non autorisée"
+
+msgid "Unknown error"
+msgstr "Erreur inconnue"
+
+msgid "OVH SMS"
+msgstr "OVH SMS"
+
+msgid "European SMS provider by OVHcloud — good EU pricing, data hosted in Europe."
+msgstr "Opérateur SMS européen par OVHcloud — tarifs compétitifs en UE, données hébergées en Europe."
+
+msgid "Service name"
+msgstr "Nom du service"
+
+msgid "Your OVH SMS account identifier (e.g. sms-xx12345-1). OVH Manager → SMS → General info."
+msgstr "Identifiant de votre compte SMS OVH (ex. sms-xx12345-1). Manager OVH → SMS → Informations générales."
+
+msgid "Application Key (AK)"
+msgstr "Clé d'application (AK)"
+
+msgid "Create at eu.api.ovh.com/createApp."
+msgstr "À créer sur eu.api.ovh.com/createApp."
+
+msgid "Application Secret (AS)"
+msgstr "Secret d'application (AS)"
+
+msgid "The secret generated alongside the Application Key."
+msgstr "Le secret généré en même temps que la clé d'application."
+
+msgid "Consumer Key (CK)"
+msgstr "Clé de consommation (CK)"
+
+msgid "Generated by requesting a credential token with GET /sms/* permissions. See the OVH API documentation."
+msgstr "Générée en demandant un token de credential avec les permissions GET /sms/*. Voir la documentation API OVH."
+
+msgid "Registered sender name (must be pre-approved in OVH Manager → SMS → Senders)."
+msgstr "Nom d'expéditeur enregistré (doit être pré-validé dans Manager OVH → SMS → Expéditeurs)."
+
+msgid "Suppress STOP clause"
+msgstr "Supprimer la mention STOP"
+
+msgid "Disable the legal \"STOP\" clause appended to marketing SMS. Only enable for transactional messages (appointment reminders qualify in most jurisdictions)."
+msgstr "Désactive la mention légale « STOP » ajoutée aux SMS marketing. À n'activer que pour les messages transactionnels (les rappels de RDV sont transactionnels dans la plupart des juridictions)."
+
+msgid "OVH SMS: one or more credentials are missing (service, AK, AS, CK, sender)."
+msgstr "OVH SMS : un ou plusieurs identifiants manquent (service, AK, AS, CK, expéditeur)."
+
+msgid "OVH SMS: unable to fetch API server time."
+msgstr "OVH SMS : impossible de récupérer l'heure du serveur API."
+
+msgid "Twilio"
+msgstr "Twilio"
+
+msgid "Global SMS provider — excellent worldwide coverage, deliverability, and developer tooling."
+msgstr "Opérateur SMS mondial — excellente couverture internationale, délivrabilité et outillage développeur."
+
+msgid "Account SID"
+msgstr "Account SID"
+
+msgid "Twilio Console → Account Info → Account SID (starts with \"AC…\")."
+msgstr "Console Twilio → Account Info → Account SID (commence par « AC… »)."
+
+msgid "Auth Token"
+msgstr "Auth Token"
+
+msgid "Twilio Console → Account Info → Auth Token."
+msgstr "Console Twilio → Account Info → Auth Token."
+
+msgid "Your Twilio Auth Token"
+msgstr "Votre Auth Token Twilio"
+
+msgid "From number"
+msgstr "Numéro d'envoi"
+
+msgid "E.164 format (e.g. +33712345678). Must be a Twilio-owned or verified number, or a Messaging Service SID (MG…)."
+msgstr "Format E.164 (ex. +33712345678). Doit être un numéro Twilio ou vérifié, ou un Messaging Service SID (MG…)."
+
+msgid "Use Messaging Service SID"
+msgstr "Utiliser un Messaging Service SID"
+
+msgid "Check if the \"From number\" field above is actually a Messaging Service SID (MGxxxxxxxx…)."
+msgstr "Cochez si le champ « Numéro d'envoi » ci-dessus est en réalité un Messaging Service SID (MGxxxxxxxx…)."
+
+msgid "Twilio: Account SID, Auth Token or From number missing."
+msgstr "Twilio : Account SID, Auth Token ou Numéro d'envoi manquant."

@@ -5,6 +5,32 @@ Format : [version] — date · description
 
 ---
 
+## [1.3.0] — 2026-04-15
+
+### Ajouté — Passerelles SMS multiples 🎉
+- **Architecture gateway** : abstraction propre dans `includes/` avec interface `SRFA_Gateway_Interface` et registry `SRFA_Gateway_Registry`.
+- **OVH SMS** : nouvelle passerelle complète (auth signée OVH API v1.0, endpoint `/sms/{service}/jobs`, fetch auto du timestamp serveur, clause STOP optionnelle, DLR par webhook).
+- **Twilio** : nouvelle passerelle complète (REST API v2010-04-01 Messages, Basic Auth Account SID + Auth Token, support From number ou Messaging Service SID, StatusCallback DLR).
+- Dans Réglages → SMS Reminder : sélecteur de passerelle en haut, blocs de configuration dynamiques par passerelle, URL de webhook DLR affichée pour chaque passerelle.
+- Colonne `Gateway` dans la page Logs, avec badge coloré par passerelle.
+- Les passerelles tierces peuvent s'enregistrer via le filtre `srfa_gateways`.
+
+### Modifié
+- `srfa_send_reminder()` délègue désormais à la passerelle active (aucun code SMS Partner dans le core).
+- Endpoint DLR scindé par passerelle : `/wp-json/srfa/v1/sms-delivery/{gateway_id}` (l'ancien `/sms-delivery` continue de fonctionner pour SMS Partner, rétrocompatibilité).
+- Colonne `sms_message_id` élargie à 128 caractères (Twilio SID = 34 chars, OVH peut être long).
+
+### BDD — Migration automatique
+- Ajout de la colonne `gateway VARCHAR(32) DEFAULT 'smspartner'` dans `srfa_logs` (anciens logs marqués `smspartner`).
+- Options : `active_gateway` ajouté avec valeur par défaut `smspartner`. L'ancienne config (`api_key`, `sender`, `sandbox` au niveau racine) est migrée automatiquement vers `gateway_smspartner`.
+- Les `define()` dans `wp-config.php` (`SRFA_API_KEY`, `SRFA_SENDER`, `SRFA_SANDBOX`) restent honorés quand `active_gateway = smspartner`.
+
+### i18n
+- +30 nouvelles chaînes traduites en français (credentials OVH, Twilio, descriptions des passerelles, etc.).
+- `.pot`, `fr_FR.po` et `fr_FR.mo` régénérés (171 chaînes au total).
+
+---
+
 ## [1.2.0] — 2026-04-14
 
 ### Ajouté

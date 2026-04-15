@@ -63,8 +63,24 @@ function srfa_status_badge( $status, $labels ) {
 }
 
 // ── Config check ─────────────────────────────────────────────────────────────
-$api_key_ok     = ! empty( srfa_get_option( 'api_key' ) );
-$sandbox_on     = (bool) srfa_get_option( 'sandbox' );
+$active_gateway_obj = SRFA_Gateway_Registry::active();
+$active_gw_id       = $active_gateway_obj->get_id();
+$gw_settings        = srfa_get_active_gateway_settings();
+
+// Heuristic: a gateway is "configured" if every non-checkbox, non-default
+// mandatory field has a non-empty value. We simplify: check that at least
+// one credential-like field (password or non-placeholder) is set.
+$api_configured = false;
+foreach ( $active_gateway_obj->get_fields() as $f ) {
+    if ( in_array( $f['type'] ?? 'text', [ 'password', 'text' ], true ) ) {
+        if ( ! empty( $gw_settings[ $f['key'] ] ) ) {
+            $api_configured = true;
+            break;
+        }
+    }
+}
+// Sandbox concept only exists for SMSPartner & Twilio has test creds; keep simple
+$sandbox_on     = ! empty( $gw_settings['sandbox'] );
 $cron_next      = wp_next_scheduled( 'srfa_hourly_send' );
 $cron_purge     = wp_next_scheduled( 'srfa_weekly_purge' );
 $settings_url   = admin_url( 'options-general.php?page=srfa-settings' );
@@ -87,15 +103,15 @@ $settings_url   = admin_url( 'options-general.php?page=srfa-settings' );
         </div>
     <?php endif; ?>
 
-    <?php if ( ! $api_key_ok ) : ?>
+    <?php if ( ! $api_configured ) : ?>
         <div class="notice notice-error">
-            <p><strong>⚠️ <?php esc_html_e( 'API key missing!', 'sms-reminder-for-amelia' ); ?></strong>
+            <p><strong>⚠️ <?php esc_html_e( 'Gateway not configured!', 'sms-reminder-for-amelia' ); ?></strong>
             <?php
             printf(
-                /* translators: 1: Settings page hyperlink, 2: wp-config define snippet. */
-                esc_html__( 'Set it in %1$s or via %2$s in wp-config.php.', 'sms-reminder-for-amelia' ),
-                '<a href="' . esc_url( $settings_url ) . '">' . esc_html__( 'Settings → SMS Reminder', 'sms-reminder-for-amelia' ) . '</a>',
-                "<code>define( 'SRFA_API_KEY', 'your_key' );</code>"
+                /* translators: 1: gateway label, 2: Settings page hyperlink. */
+                esc_html__( 'The active gateway (%1$s) has missing credentials. Configure it in %2$s.', 'sms-reminder-for-amelia' ),
+                '<strong>' . esc_html( $active_gateway_obj->get_label() ) . '</strong>',
+                '<a href="' . esc_url( $settings_url ) . '">' . esc_html__( 'Settings → SMS Reminder', 'sms-reminder-for-amelia' ) . '</a>'
             );
             ?></p>
         </div>
@@ -114,19 +130,19 @@ $settings_url   = admin_url( 'options-general.php?page=srfa-settings' );
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:20px 0;">
 
         <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px;">
-            <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;"><?php esc_html_e( 'API key', 'sms-reminder-for-amelia' ); ?></div>
-            <?php if ( $api_key_ok ) : ?>
-                <span style="color:#16a34a;font-weight:600;">✓ <?php esc_html_e( 'Configured', 'sms-reminder-for-amelia' ); ?></span>
+            <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;"><?php esc_html_e( 'Active gateway', 'sms-reminder-for-amelia' ); ?></div>
+            <?php if ( $api_configured ) : ?>
+                <span style="color:#16a34a;font-weight:600;">✓ <?php echo esc_html( $active_gateway_obj->get_label() ); ?></span>
                 <div style="font-size:12px;color:#64748b;margin-top:4px;">
-                    <?php esc_html_e( 'Sender:', 'sms-reminder-for-amelia' ); ?> <?php echo esc_html( srfa_get_option( 'sender' ) ); ?>
+                    <?php esc_html_e( 'Configured', 'sms-reminder-for-amelia' ); ?>
                 </div>
-                <?php if ( srfa_is_locked( 'api_key' ) ) : ?>
+                <?php if ( $active_gw_id === 'smspartner' && srfa_is_locked_smspartner( 'api_key' ) ) : ?>
                     <div style="margin-top:6px;font-size:11px;color:#92400e;background:#fef3c7;padding:2px 8px;border-radius:10px;display:inline-block;">🔒 wp-config.php</div>
                 <?php else : ?>
                     <div style="margin-top:6px;font-size:11px;color:#1d4ed8;background:#eff6ff;padding:2px 8px;border-radius:10px;display:inline-block;">⚙️ <?php esc_html_e( 'Dashboard', 'sms-reminder-for-amelia' ); ?></div>
                 <?php endif; ?>
             <?php else : ?>
-                <span style="color:#dc2626;font-weight:600;">✗ <?php esc_html_e( 'Missing', 'sms-reminder-for-amelia' ); ?></span>
+                <span style="color:#dc2626;font-weight:600;">✗ <?php echo esc_html( $active_gateway_obj->get_label() ); ?></span>
                 <div style="margin-top:6px;">
                     <a href="<?php echo esc_url( $settings_url ); ?>" style="font-size:12px;">→ <?php esc_html_e( 'Configure', 'sms-reminder-for-amelia' ); ?></a>
                 </div>
@@ -140,7 +156,7 @@ $settings_url   = admin_url( 'options-general.php?page=srfa-settings' );
             <?php else : ?>
                 <span style="color:#16a34a;font-weight:600;">🚀 <?php esc_html_e( 'Production', 'sms-reminder-for-amelia' ); ?></span>
             <?php endif; ?>
-            <?php if ( srfa_is_locked( 'sandbox' ) ) : ?>
+            <?php if ( $active_gw_id === 'smspartner' && srfa_is_locked_smspartner( 'sandbox' ) ) : ?>
                 <div style="margin-top:6px;font-size:11px;color:#92400e;background:#fef3c7;padding:2px 8px;border-radius:10px;display:inline-block;">🔒 wp-config.php</div>
             <?php else : ?>
                 <div style="margin-top:6px;font-size:11px;color:#1d4ed8;background:#eff6ff;padding:2px 8px;border-radius:10px;display:inline-block;">⚙️ <?php esc_html_e( 'Dashboard', 'sms-reminder-for-amelia' ); ?></div>
@@ -202,7 +218,7 @@ $settings_url   = admin_url( 'options-general.php?page=srfa-settings' );
         <div style="font-size:12px;color:#64748b;">
             <?php esc_html_e( 'DLR endpoint:', 'sms-reminder-for-amelia' ); ?>
             <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:11px;">
-                <?php echo esc_html( rest_url( 'srfa/v1/sms-delivery' ) ); ?>
+                <?php echo esc_html( rest_url( 'srfa/v1/sms-delivery/' . srfa_get_option( 'active_gateway', 'smspartner' ) ) ); ?>
             </code>
         </div>
     </div>
@@ -221,6 +237,7 @@ $settings_url   = admin_url( 'options-general.php?page=srfa-settings' );
                     <tr>
                         <th style="width:140px;"><?php esc_html_e( 'Appointment date', 'sms-reminder-for-amelia' ); ?></th>
                         <th style="width:60px;text-align:center;" title="<?php echo esc_attr__( 'Reminder slot (SMS 1 = primary, SMS 2 = secondary)', 'sms-reminder-for-amelia' ); ?>"><?php esc_html_e( 'Slot', 'sms-reminder-for-amelia' ); ?></th>
+                        <th style="width:90px;"><?php esc_html_e( 'Gateway', 'sms-reminder-for-amelia' ); ?></th>
                         <th style="width:160px;"><?php esc_html_e( 'Customer', 'sms-reminder-for-amelia' ); ?></th>
                         <th style="width:120px;"><?php esc_html_e( 'Phone', 'sms-reminder-for-amelia' ); ?></th>
                         <th><?php esc_html_e( 'Service', 'sms-reminder-for-amelia' ); ?></th>
@@ -245,6 +262,16 @@ $settings_url   = admin_url( 'options-general.php?page=srfa-settings' );
                         <td style="text-align:center;">
                             <span style="display:inline-block;min-width:28px;padding:2px 8px;background:<?php echo esc_attr( $slot_bg ); ?>;color:<?php echo esc_attr( $slot_fg ); ?>;border-radius:10px;font-size:11px;font-weight:700;">
                                 <?php echo (int) $slot_num; ?>
+                            </span>
+                        </td>
+                        <td>
+                            <?php
+                            $log_gw   = isset( $log->gateway ) && $log->gateway ? (string) $log->gateway : 'smspartner';
+                            $gw_obj   = SRFA_Gateway_Registry::get( $log_gw );
+                            $gw_label = $gw_obj ? $gw_obj->get_label() : $log_gw;
+                            ?>
+                            <span style="display:inline-block;padding:2px 8px;background:#f1f5f9;color:#334155;border-radius:10px;font-size:11px;font-weight:600;">
+                                <?php echo esc_html( $gw_label ); ?>
                             </span>
                         </td>
                         <td><?php echo esc_html( $log->customer_name ); ?></td>

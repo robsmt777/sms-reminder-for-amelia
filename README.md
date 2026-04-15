@@ -8,7 +8,7 @@ Développé par **[Capitaine Site](https://capitainesite.com/)** — Agence expe
 
 ## ✨ Fonctionnalités
 
-- 📱 Envoi automatique de SMS de rappel via **SMS Partner** (autres passerelles à venir)
+- 📱 Envoi automatique de SMS de rappel via **3 passerelles au choix** : SMS Partner, OVH SMS, Twilio
 - ⏰ **2 rappels par RDV** (SMS 1 obligatoire + SMS 2 optionnel) — timings au choix : 10 min, 30 min, 1h, 2h, 4h, 8h, 12h, 24h ou 48h avant
 - 💬 **Message indépendant par slot** — SMS 1 détaillé la veille, SMS 2 court 1h avant, par exemple
 - 🔄 **Détection des reports** : si un RDV est déplacé, les slots actifs renvoient un SMS automatiquement
@@ -106,14 +106,35 @@ Le plugin est entièrement prêt pour l'i18n. Les fichiers fournis :
 
 Pour contribuer une traduction dans une autre langue : utilisez **[Poedit](https://poedit.net/)**, **[Loco Translate](https://wordpress.org/plugins/loco-translate/)** ou envoyez-nous une PR avec votre `.po` (la compilation `.mo` est automatique).
 
+## 🛰️ Passerelles SMS supportées
+
+| Passerelle | Région | Points forts |
+|---|---|---|
+| **SMS Partner** | 🇫🇷 France | Support FR natif, tarifs compétitifs, mode sandbox intégré |
+| **OVH SMS** | 🇪🇺 Europe | Tarifs UE, données hébergées en Europe, clause STOP paramétrable |
+| **Twilio** | 🌍 Mondial | Meilleure couverture globale, excellent outillage dev, Messaging Services |
+
+Chaque passerelle a son propre webhook DLR : `/wp-json/srfa/v1/sms-delivery/{gateway_id}`.
+
+**Ajouter votre propre passerelle** via le filtre `srfa_gateways` :
+
+```php
+add_filter( 'srfa_gateways', function ( $gateways ) {
+    require_once __DIR__ . '/my-custom-gateway.php';
+    $gateways['mycustom'] = new My_Custom_Gateway();
+    return $gateways;
+} );
+```
+
 ## 🗺️ Roadmap
 
-- [ ] Passerelle **OVH SMS**
-- [ ] Passerelle **Twilio**
-- [ ] Architecture d'extension (gateways enregistrables)
+- [x] Passerelle **OVH SMS** ✅ (v1.3)
+- [x] Passerelle **Twilio** ✅ (v1.3)
+- [x] Architecture d'extension (gateways enregistrables) ✅ (v1.3)
 - [ ] Publication sur WordPress.org (version gratuite)
 - [ ] Notifications email en cas d'échec critique
 - [ ] Plus de langues (es, de, it, pt via WP.org)
+- [ ] Passerelles supplémentaires : Vonage, MessageBird, Brevo
 
 ---
 
